@@ -1,0 +1,9 @@
+STYLE
+* Increase H1 font size
+* Transparent logo
+* Logo vertial alignment
+* stresstester style button (click colors etc)
+* progress bar
+
+FUNCTION
+* Button creates and syncs wallet

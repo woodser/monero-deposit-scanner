@@ -1,0 +1,42 @@
+:root {
+	--item-margin: 1.5em;
+}
+
+.title_bar {
+	display: grid;
+	grid-template:
+	". content ." 1fr / 1fr auto 1fr;
+}
+
+.title_bar_content_container {
+	grid-area: content;
+  display: table;
+}
+
+.monero_logo {
+  display: table-cell;
+  vertical-align: center;
+}
+
+h1 {
+	display: table-cell;
+	vertical-align: center;
+	grid-area: item2;
+}
+
+.item_margin {
+	display: table-cell;
+	grid-area: margin;
+	width: var(--item-margin);
+}
+
+.vertically_centered_item_container {
+  display: inline-block;
+  height: 100%;
+  vertical-align: middle;
+  grid-area: item1;
+}
+
+.vertically_centered_item_container > * {
+  vertical-align: middle;
+}

@@ -1,0 +1,71 @@
+:root {
+  --bg-color: #eaf0f0;
+  --font: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --page-box-width: 900px;
+  --item-width: 860px;
+  --loading-animation-size: 36px;
+  --large-spacer-height: 52px;
+  --small-spacer-height: 18px;
+  --h1-font-size: 32px;
+  --h2-font-size: 18px;
+  --line-height-font-size-ratio: 0.5;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font);
+}
+
+.hidden {
+  visibility: hidden;
+}
+
+.large_spacer {
+	height: var(--large-spacer-height);
+}
+
+.small_spacer{
+	height: var(--small-spacer-height);
+}
+
+#app {
+  width: 100%;
+  height: 100%;
+  text-align: center;
+  background-color: var(--bg-color);
+}
+
+.title_bar {
+	display: flex;
+	flex-direction: row;
+}
+
+#monero_logo {
+	height: 64px;
+	width: 64px;
+}
+
+h1{
+	font-size: var(--h1-font-size);
+}
+
+h2 {
+	font-size: var(--h2-font-size);
+	font-style: italic;
+}
+
+h1, h2{
+	margin-top: 0;
+	margin-bottom: 0;
+}
+
+.deposit_viewer_page_box > * {
+  width: 80%;
+  margin: 0 auto;
+}
+
+.deposit_viewer_page_box > div {
+	display: flex;
+	flex-direction: row;
+	justify-content: center;
+}
