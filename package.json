@@ -1,5 +1,5 @@
 {
-  "name": "monerodepositviewer",
+  "name": "monero-deposit-scanner",
   "version": "0.0.0",
   "description": "A basic web app for viewing deposits to a monero wallet",
   "main": "index.js",
