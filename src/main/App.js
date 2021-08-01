@@ -1,5 +1,5 @@
 import React, {useState, useRef, useEffect} from 'react';
-import ReactDOM from 'react-dom';
+
 import {SubmitButton} from "./Components/MoneroButtons.js";
 import LoadingAnimation from "./Components/LoadingAnimation.js";
 import "./app.css";
@@ -12,6 +12,7 @@ import TitleBar from "./Components/TitleBar.js";
 import { xmrToAtomicUnits } from 'monero-javascript/src/main/js/common/MoneroUtils';
 import { WORKER_DIST_PATH_DEFAULT } from 'monero-javascript/src/main/js/common/LibraryUtils';
 import ProgressBar from "./Components/ProgressBar.js";
+import TransactionTable from "./Components/TransactionTable.js";
 
 const monerojs = require("monero-javascript");
 const MoneroUtils = monerojs.MoneroUtils;
@@ -50,6 +51,8 @@ export default function App(props){
   const [buttonState, setButtonState] = useState(0);
   const [syncProgress, setSyncProgress] = useState(0);
 
+  const [transactionList, setTransactionList] = useState([]);
+
   const addressIsValid = useRef(false);
   const viewKeyIsValid = useRef(false);
   const restoreHeightIsValid = useRef(false);
@@ -58,6 +61,25 @@ export default function App(props){
     
   // This function is purely for testing!
   const currentStep = useRef(0);
+  
+  const addTransaction = function(transaction){
+    setTransactionList(transactionList.concat(transaction));
+  }
+  
+  // This function is strictly for generating a dummy list for debugging!
+  const generateRandomTransaction = function(tx) {
+    const genRanHex = size => [...Array(size)].map(() => Math.floor(Math.random() * 16).toString(16)).join('');
+    return(
+      {
+        timeStamp: new Date(Math.random() * new Date()),
+        amount: Math.random() * 5000,
+        fee: Math.random() * 10,
+        height: Math.random() * 9999999,
+        hash: genRanHex(64)
+      }
+    )
+  }
+  
   const testSubmitButtonDisplay = function(){
     
     currentStep.current++;
@@ -76,12 +98,16 @@ export default function App(props){
       case 3:
         setButtonState(3);
         setSyncProgress(1);
+        addTransaction(generateRandomTransaction());
         break;
       case 4:
         setSyncProgress(25);
+        addTransaction(generateRandomTransaction());
         break;
       case 5:
         setSyncProgress(50);
+        addTransaction(generateRandomTransaction());
+        addTransaction(generateRandomTransaction());
         break;
       case 6:
         setSyncProgress(75);
@@ -89,6 +115,7 @@ export default function App(props){
       case 7:
         setSyncProgress(99);
         setButtonState(4);
+        addTransaction(generateRandomTransaction());
         break;
       case 8: 
         setButtonState(4);
@@ -400,6 +427,8 @@ export default function App(props){
          />
          <div className = "small_spacer"></div>
            {buttonElement}
+         <div className = "small_spacer"></div>
+           <TransactionTable transactions = {transactionList} />
          <div className = "large_spacer"></div>
        </PageBox>
       </>    
