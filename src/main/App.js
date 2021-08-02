@@ -36,7 +36,7 @@ export default function App(props){
     </div>
   const WALLET_INFO = {
     networkType: "stagenet",
-    serverUri: "http://localhost:80",
+    serverUri: "http://134.122.121.42:80",
   }
   
   // State
@@ -64,18 +64,35 @@ export default function App(props){
   
   const addTransaction = function(transaction){
     setTransactionList(transactionList.concat(transaction));
+    console.log("New transaction list: " + transactionList);
   }
+  /* 
+   * monero-javascript returns transaction datetimes in the form of an integer representing
+   * the number of milliseconds that have passed since te epoch.
+   * The spec requires dates to be displayed in the format:
+   * YYYY-MM-DD HH:MM:SS UTC
+   */
+   const convertMillisecondsToFormattedDateString = function(t){
+     let date = new Date(t);
+     return(
+       date.getUTCFullYear() + "-" + (date.getUTCMonth()+1) + "-" + date.getUTCDate() + " " + 
+       date.getUTCHours() + ":" + date.getUTCMinutes() + ":" + date.getUTCSeconds() + " UTC"
+     )
+   }
   
   // This function is strictly for generating a dummy list for debugging!
   const generateRandomTransaction = function(tx) {
     const genRanHex = size => [...Array(size)].map(() => Math.floor(Math.random() * 16).toString(16)).join('');
+    const maxTime = new Date().getTime();
+    let randomTimeMilliseconds = Math.trunc(Math.random() * maxTime); 
+    console.log("first random hex: " + genRanHex(64).toString());
     return(
       {
-        timeStamp: new Date(Math.random() * new Date()),
-        amount: Math.random() * 5000,
-        fee: Math.random() * 10,
-        height: Math.random() * 9999999,
-        hash: genRanHex(64)
+        timeStamp: convertMillisecondsToFormattedDateString(randomTimeMilliseconds),
+        amount: (Math.random() * 5000).toFixed(12),
+        fee: (Math.random() * 10).toFixed(12),
+        height: Math.trunc(Math.random() * 9999999).toString(),
+        txHash: genRanHex(64).toString()
       }
     )
   }
@@ -140,10 +157,11 @@ export default function App(props){
     // required to use it.
     let dateWallet;
     try {
+      console.log("Attempting to create wallet");
       dateWallet = await monerojs.createWalletFull({
         password: "supersecretpassword123",
         networkType: "stagenet",
-        serverUri: "http://localhost:80",
+        serverUri: "134.122.121.42:80",
       });
     } catch(e){
       throw("Date wallet creation failed: " + e);
