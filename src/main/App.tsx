@@ -1,29 +1,38 @@
-import React, {useState, useRef, useEffect} from 'react';
+import React, {FC, useState, useRef, useEffect} from 'react';
 
-import {SubmitButton} from "./Components/MoneroButtons.js";
-import LoadingAnimation from "./Components/LoadingAnimation.js";
+import {SubmitButton} from "./Components/MoneroButtons";
+import LoadingAnimation from "./Components/LoadingAnimation";
 import "./app.css";
 //import moneroLogo from "./img/logo.png";
-import PageBox from "./Components/PageBox.js";
-import DepositViewerTextEntryField from "./Components/DepositViewerTextEntryField.js";
-import VerticallyCenteredItemContainer from "./Components/VerticallyCenteredItemContainer.js"
-import MoneroLogo from "./img/MoneroLogo.png";
-import TitleBar from "./Components/TitleBar.js";
-import { xmrToAtomicUnits } from 'monero-javascript/src/main/js/common/MoneroUtils';
-import { WORKER_DIST_PATH_DEFAULT } from 'monero-javascript/src/main/js/common/LibraryUtils';
-import ProgressBar from "./Components/ProgressBar.js";
-import TransactionTable from "./Components/TransactionTable.js";
+import PageBox from "./Components/PageBox";
+import DepositViewerTextEntryField from "./Components/DepositViewerTextEntryField";
+//import VerticallyCenteredItemContainer from "./Components/VerticallyCenteredItemContainer"
+//import MoneroLogo from "./img/MoneroLogo.png";
+import TitleBar from "./Components/TitleBar";
+//import ProgressBar from "./Components/ProgressBar";
+import TransactionTable from "./Components/TransactionTable";
+import {Transaction} from "./GlobalTypes";
 
 const monerojs = require("monero-javascript");
-const MoneroUtils = monerojs.MoneroUtils;
+
+/*
+ * The second import of "monero-javascript" is necessary in order to create a 
+ * type based off of it's child module
+ */
+import monerojsExplicitImport from "monero-javascript";
+
 const LibraryUtils = monerojs.LibraryUtils;
-const MoneroWalletListener = monerojs.MoneroWalletListener;
-//const MoneroWallet = monerojs.MoneroWallet;
+const MoneroUtils = monerojs.MoneroUtils;
+type MoneroWalletFull = monerojsExplicitImport.MoneroWalletFull;
 //const MoneroRpcConnection = monerojs.MoneroRpcConnection;
+const MoneroWalletListener = monerojs.MoneroWalletListener;
 const MoneroNetworkType = monerojs.MoneroNetworkType;
+const BigInteger = monerojs.BigInteger;
 
-
-export default function App(props){
+export default function App(){
+  
+  //DEBUG!
+  const TARGET_NODE = "opennode.xmr-tw.org:18089";
   
   const PAGE_BOX_WIDTH = "1024px";
   const PAGE_BOX_COLOR = "#f2be00";
@@ -35,35 +44,45 @@ export default function App(props){
       , client-side transaction scanner to view incoming deposits to a Monero wallet
     </div>
   const WALLET_INFO = {
-    networkType: "stagenet",
-    serverUri: "http://134.122.121.42:80",
-  }
+        password: "supersecretpassword123",
+        networkType: "mainnet",
+        serverUri: "134.122.121.42:85/",
+      }
   
   // State
-  const [balance, setBalance] = useState(0);
+
+  const [balance, setBalance] = useState<BigInteger>(BigInteger(0));
   const [deposits, setDeposits] = useState([]);
-  
-  const [walletAddress, setWalletAddress] = useState(null);
-  const [viewkey, setViewkey] = useState(null);
+  const [walletAddress, setWalletAddress] = useState<string | null>(null);
+  const [viewkey, setViewKey] = useState<string | null>(null);
   const [restoreHeight, setRestoreHeight] = useState(0)
   const [dateConversionWalletIsLoaded, setDateConversionWalletIsLoaded] = useState(false);
 
   const [buttonState, setButtonState] = useState(0);
   const [syncProgress, setSyncProgress] = useState(0);
 
-  const [transactionList, setTransactionList] = useState([]);
+  const [transactionList, setTransactionList] = useState([] as Transaction[]);
 
   const addressIsValid = useRef(false);
   const viewKeyIsValid = useRef(false);
   const restoreHeightIsValid = useRef(false);
-  const wallet = useRef(null);
-  const dateConversionWallet = useRef(null);
+  const wallet = useRef<Promise<any> | any>();
+  const dateConversionWallet = useRef<any | null>(null);
     
   // This function is purely for testing!
   const currentStep = useRef(0);
   
-  const addTransaction = function(transaction){
-    setTransactionList(transactionList.concat(transaction));
+  /*
+  {
+        timeStamp: convertMillisecondsToFormattedDateString(randomTimeMilliseconds),
+        amount: (Math.random() * 5000).toFixed(12),
+        fee: (Math.random() * 10).toFixed(12),
+        height: Math.trunc(Math.random() * 9999999).toString(),
+        txHash: genRanHex(64).toString()
+      }
+  */
+  const addTransaction: (transaction: Transaction) => void = function(transaction){
+    setTransactionList(transactionList.concat([transaction] as Transaction[]));
     console.log("New transaction list: " + transactionList);
   }
   /* 
@@ -72,7 +91,7 @@ export default function App(props){
    * The spec requires dates to be displayed in the format:
    * YYYY-MM-DD HH:MM:SS UTC
    */
-   const convertMillisecondsToFormattedDateString = function(t){
+   const convertMillisecondsToFormattedDateString: (t: number) => string = function(t: number){
      let date = new Date(t);
      return(
        date.getUTCFullYear() + "-" + (date.getUTCMonth()+1) + "-" + date.getUTCDate() + " " + 
@@ -81,8 +100,8 @@ export default function App(props){
    }
   
   // This function is strictly for generating a dummy list for debugging!
-  const generateRandomTransaction = function(tx) {
-    const genRanHex = size => [...Array(size)].map(() => Math.floor(Math.random() * 16).toString(16)).join('');
+  const generateRandomTransaction = function(): Transaction {
+    const genRanHex: (size: number) => string = size => [...Array(size)].map(() => Math.floor(Math.random() * 16).toString(16)).join('');
     const maxTime = new Date().getTime();
     let randomTimeMilliseconds = Math.trunc(Math.random() * maxTime); 
     console.log("first random hex: " + genRanHex(64).toString());
@@ -158,11 +177,7 @@ export default function App(props){
     let dateWallet;
     try {
       console.log("Attempting to create wallet");
-      dateWallet = await monerojs.createWalletFull({
-        password: "supersecretpassword123",
-        networkType: "stagenet",
-        serverUri: "134.122.121.42:80",
-      });
+      dateWallet = await monerojs.createWalletFull(WALLET_INFO);
     } catch(e){
       throw("Date wallet creation failed: " + e);
     }
@@ -171,12 +186,12 @@ export default function App(props){
     return dateWallet;
   }
   
-  const resetApp = function() {
+  const resetApp = function(): void {
     /*
       const [balance, setBalance] = useState(0);
   const [deposits, setDeposits] = useState([]);
   const [walletAddress, setWalletAddress] = useState(null);
-  const [viewkey, setViewkey] = useState(null);
+  const [viewkey, setViewKey] = useState(null);
   const [restoreHeight, setRestoreHeight] = useState(0)
   const [dateConversionWalletIsLoaded, setDateConversionWalletIsLoaded] = useState(false);
   const [buttonState, setButtonState] = useState(0);
@@ -189,9 +204,9 @@ export default function App(props){
   const dateConversionWallet = useRef(null);
     */
     
-    setBalance(0);
-    setWalletAddress(0);
-    setViewKey(0);
+    setBalance(BigInteger(0));
+    setWalletAddress(null);
+    setViewKey(null);
     setRestoreHeight(0);
     //setDateConversionWalletIsLoaded(false);
     setButtonState(0);
@@ -200,7 +215,7 @@ export default function App(props){
     addressIsValid.current = false;
     viewKeyIsValid.current = false;
     restoreHeightIsValid.current = false;
-    wallet.current = null;
+    wallet.current = undefined;
     //dateConversionWallet.current = null;
   }
   
@@ -246,12 +261,12 @@ export default function App(props){
     loadPreRequisites();
   }, []);
   
-  const setBalances = function(balance){
+  const setBalances = function(balance: BigInteger){
     setBalance(balance);
   }
 
-  const setCurrentSyncProgress = function(percentDone){
-    setWalletSyncProgress(percentDone);
+  const setCurrentSyncProgress = function(percentDone: number){
+    setSyncProgress(percentDone);
   }
   
   const startScanning = function() {
@@ -263,36 +278,36 @@ export default function App(props){
    *
    * Creates the tx generator, listens for event notifications, and starts background synchronization.
    */
-  const _initMain = async function(){
+  const _initMain: () => void = async function(){
     
     // resolve wallet promise
     // TODO (woodser): create new wallet button needs greyed while this loads
-    let wallet = await wallet;
+    let initWallet: MoneroWalletFull = await wallet.current;
 
     // If the user hit "Or go back" before the wallet finished building, abandon wallet creation
     // and do NOT proceed to wallet page
-    if (this.userCancelledWalletConfirmation) return;
     
+    // TEMPORARY - TO REMOVE ERRORS
+    // Eventally implement ability for user to cancel wallet confirmation in this app
+    let userCancelledWalletConfirmation = false;
+    if (userCancelledWalletConfirmation) return;
     // register listener to handle balance notifications
     // TODO: register once wherever is appropriate, but need to update state with updated balances from wallet listener
-    await wallet.addListener(new class extends MoneroWalletListener {
-      async onBalancesChanged(newBalance, newUnlockedBalance) {
+    await initWallet.addListener(new class extends MoneroWalletListener {
+      async onBalancesChanged(newBalance: BigInteger, newUnlockedBalance: BigInteger) {
         console.log("wallet.onBalancesChanged(" + newBalance.toString() + ", " + newUnlockedBalance.toString() + ")");
-        that.setState({
-          balance: newBalance,
-          availableBalance: newUnlockedBalance
-        });
+        setBalance(newBalance);
       }
     });
     
     // start syncing wallet in background if the user has not cancelled wallet creation.
-    await wallet.startSyncing();
+    await wallet.current.startSyncing();
   }
   
-  const validateAddress = function(address){
+  const validateAddress = function(address: string){
     return MoneroUtils.isValidAddress(address, MoneroNetworkType.MAINNET);
   }
-  const validateViewKey = function(viewKey){
+  const validateViewKey = function(viewKey: string): boolean{
     try {
       MoneroUtils.validatePrivateViewKey(viewKey);
     } catch (e){
@@ -300,12 +315,9 @@ export default function App(props){
     }
     return true;
   } 
-  const validateRestoreHeight = function(height){
+  const validateRestoreHeight = function(restoreHeight: string): boolean {
     console.log("Validating restore height");
-  }
-  
-  const changeRestoreHeightText = function(restoreHeight, setEnteredTextIsValid){
-    console.log("Changing restore height");
+    return true;
   }
   
   /* Extracts the nuances of determining how to create the submit button under current circumstances from the main function
@@ -313,8 +325,8 @@ export default function App(props){
    */
   const createButtonElement = function(){
     let handleSubmit;
-    let showLoadingWheel = false;
-    let buttonMessage = "";
+    let showLoadingWheel: boolean = false;
+    let buttonMessage: string = "";
     
     /*
      * isActive is false if the user-entered data (address, height, etc.) has not yet satisfied requirements.
@@ -342,7 +354,8 @@ export default function App(props){
       buttonMessage = "View incoming deposits";
     }
     
-    let image;
+    // implicit typing. explicitly type "image"
+    let image: JSX.Element = <></>;
     if(showLoadingWheel){
       image = <LoadingAnimation />
     } 
@@ -413,11 +426,11 @@ export default function App(props){
           onClick = {testSubmitButtonDisplay}
         >
           <p>All inputs are valid? {(addressIsValid.current && viewKeyIsValid.current && restoreHeightIsValid.current).toString()}</p>
-          <p>Synchronization progres: {syncProgress}%}</p>
+          <p>Synchronization progres: {syncProgress}%</p>
           <p>Current test state step: {currentStep.current}</p>
           <p>Click this button to advance to the next test state</p>
        </button>
-       <PageBox className = "deposit_viewer_page_box" boxWidth = {PAGE_BOX_WIDTH} backgroundColor = {PAGE_BOX_COLOR}>
+       <PageBox className = "deposit_viewer_page_box" boxWidth = {PAGE_BOX_WIDTH} bgColor = {PAGE_BOX_COLOR}>
      
          <div className = "large_spacer"></div>
  
@@ -461,58 +474,36 @@ export default function App(props){
  */
 class walletListener extends MoneroWalletListener {
               
-  constructor(setBalance, setCurrentSyncProgress) { 
+  setBalance: (balance: BigInteger) => void;
+  setCurrentSyncProgress: (progress: number) => void;
+  syncResolution: number;
+  lastIncrement: number;
+  walletIsSynchronized: boolean;
+              
+  constructor(setBalance: (balance: BigInteger) => void, setCurrentSyncProgress: (progress: number) => void) { 
     super();
-    this.setBalanace = setBalance;
+    this.setBalance = setBalance;
     this.setCurrentSyncProgress = setCurrentSyncProgress;
     this.syncResolution = 0.05;
     this.lastIncrement = 0;
     this.walletIsSynchronized = false;
   }
               
-  onSyncProgress(height, startHeight, endHeight, percentDone, message) {
+  onSyncProgress(height: number, startHeight: number, endHeight: number, percentDone: number, message: string) {
     this.setCurrentSyncProgress(percentDone*100); 
     if (percentDone >= this.lastIncrement + this.syncResolution) {
       this.lastIncrement += this.syncResolution;
     }
   }
   
-  onBalancesChanged(newBalance, newUnlockedBalance){
+  onBalancesChanged(newBalance: BigInteger, newUnlockedBalance: BigInteger){
     if (this.walletIsSynchronized) {
       this.setBalance(newBalance); 
     }
   }
   
-  setWalletIsSynchronized(value) {
+  setWalletIsSynchronized(value: boolean) {
     this.walletIsSynchronized = value;
   }
 }
 
-function ScanBlockchainButton(props){
-  
-  // The text of the "submit" button changes depending on context
-  // AND it can contain additional content besides text (loading spinner) in some situations
-  const [submitButtonContents, setSubmitButtonContents] = useState(
-    <div className = "loading_button_contents_container">
-      <span>This is a test</span>
-      <LoadingAnimation/>
-    </div>
-  )
-  
-  let loadingAnimation;
-  let message = props.buttonMessage;
-  
-  if(props.showLoadingWheel){
-    loadingAnimation = <LoadingAnimation/>
-  }
-  
-  return(
-    <SubmitButton 
-      progress = {props.syncProgress}
-      message = {message}
-      image = {loadingAnimation}
-      alt_element = {progressBar}
-      action = {props.handleSubmit}
-    />
-  )
-}

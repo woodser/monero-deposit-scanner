@@ -1,17 +1,17 @@
 import React, {useState, useRef, useEffect} from 'react';
 
-import {SubmitButton} from "./Components/MoneroButtons.js";
-import LoadingAnimation from "./Components/LoadingAnimation.js";
+import {SubmitButton} from "./Components/MoneroButtons.tsx";
+import LoadingAnimation from "./Components/LoadingAnimation.tsx";
 import "./app.css";
 //import moneroLogo from "./img/logo.png";
-import PageBox from "./Components/PageBox.js";
-import DepositViewerTextEntryField from "./Components/DepositViewerTextEntryField.js";
+import PageBox from "./Components/PageBox";
+import DepositViewerTextEntryField from "./Components/DepositViewerTextEntryField.tsx";
 import VerticallyCenteredItemContainer from "./Components/VerticallyCenteredItemContainer.js"
 import MoneroLogo from "./img/MoneroLogo.png";
 import TitleBar from "./Components/TitleBar.js";
 import { xmrToAtomicUnits } from 'monero-javascript/src/main/js/common/MoneroUtils';
 import { WORKER_DIST_PATH_DEFAULT } from 'monero-javascript/src/main/js/common/LibraryUtils';
-import ProgressBar from "./Components/ProgressBar.js";
+import ProgressBar from "./Components/ProgressBar";
 import TransactionTable from "./Components/TransactionTable.js";
 
 const monerojs = require("monero-javascript");
@@ -25,6 +25,9 @@ const MoneroNetworkType = monerojs.MoneroNetworkType;
 
 export default function App(props){
   
+  //DEBUG!
+  const TARGET_NODE = "opennode.xmr-tw.org:18089";
+  
   const PAGE_BOX_WIDTH = "1024px";
   const PAGE_BOX_COLOR = "#f2be00";
   
@@ -35,9 +38,10 @@ export default function App(props){
       , client-side transaction scanner to view incoming deposits to a Monero wallet
     </div>
   const WALLET_INFO = {
-    networkType: "stagenet",
-    serverUri: "http://134.122.121.42:80",
-  }
+        password: "supersecretpassword123",
+        networkType: "mainnet",
+        serverUri: "134.122.121.42:85/",
+      }
   
   // State
   const [balance, setBalance] = useState(0);
@@ -81,7 +85,7 @@ export default function App(props){
    }
   
   // This function is strictly for generating a dummy list for debugging!
-  const generateRandomTransaction = function(tx) {
+  const generateRandomTransaction = function() {
     const genRanHex = size => [...Array(size)].map(() => Math.floor(Math.random() * 16).toString(16)).join('');
     const maxTime = new Date().getTime();
     let randomTimeMilliseconds = Math.trunc(Math.random() * maxTime); 
@@ -158,11 +162,8 @@ export default function App(props){
     let dateWallet;
     try {
       console.log("Attempting to create wallet");
-      dateWallet = await monerojs.createWalletFull({
-        password: "supersecretpassword123",
-        networkType: "stagenet",
-        serverUri: "134.122.121.42:80",
-      });
+      
+      dateWallet = await monerojsExplicitImport.createWalletFull(WALLET_INFO);
     } catch(e){
       throw("Date wallet creation failed: " + e);
     }
@@ -413,11 +414,11 @@ export default function App(props){
           onClick = {testSubmitButtonDisplay}
         >
           <p>All inputs are valid? {(addressIsValid.current && viewKeyIsValid.current && restoreHeightIsValid.current).toString()}</p>
-          <p>Synchronization progres: {syncProgress}%}</p>
+          <p>Synchronization progres: {syncProgress}%</p>
           <p>Current test state step: {currentStep.current}</p>
           <p>Click this button to advance to the next test state</p>
        </button>
-       <PageBox className = "deposit_viewer_page_box" boxWidth = {PAGE_BOX_WIDTH} backgroundColor = {PAGE_BOX_COLOR}>
+       <PageBox className = "deposit_viewer_page_box" boxWidth = {PAGE_BOX_WIDTH} bgColor = {PAGE_BOX_COLOR}>
      
          <div className = "large_spacer"></div>
  

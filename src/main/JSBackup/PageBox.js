@@ -8,17 +8,17 @@ export default function PageBox(props) {
   if (props.boxWidth === undefined) boxWidth = "200px";
   if (props.bgColor === undefined) bgColor = "red";
   
-  if(props.width !== undefined && props.width !== null){
-    boxWidth = props.width;
+  if(props.boxWidth !== undefined && props.boxWidth !== null){
+    boxWidth = props.boxWidth;
   }
   if(props.backgroundColor !== undefined && props.backgroundColor !== null){
-    bgColor = props.backgroundColor;
+    bgColor = props.bgColor;
   }
   
   return (
     <div 
       className={"page_box " + props.className}
-      style = {{width: props.boxWidth, backgroundColor: bgColor}}
+      style = {{width: boxWidth, backgroundColor: bgColor}}
     >
       {props.children}
     </div>

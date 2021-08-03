@@ -1,41 +1,46 @@
-import React, {useState}from 'react';
-import PageTextEntry from "./PageTextEntry.js";
+import React, {useState, FunctionComponent}from 'react';
+import PageTextEntry from "./PageTextEntry";
 
 const monerojs = require("monero-javascript");
 const MoneroUtils = monerojs.MoneroUtils;
 
-export default function DepositViewerTextEntryField(props){
-  
-  //props.isValid
+/*
+ * :
+ *  isActive: boolean (optional)
+ *  defaultValue: string
+ *  validateEntry
+ */
+ 
+type DepositViewerTextEntryFieldProps = {
+  isActive?: boolean,
+  defaultValue: string,
+  validateEntry?: (entry: string) => boolean,
+  handleTextChange?: (newText: string) => void
+}
+ 
+export default function({isActive, defaultValue, validateEntry}: DepositViewerTextEntryFieldProps){
   
   const [enteredText, setEnteredText] = useState("");
   const [enteredTextIsValid, setEnteredTextIsValid] = useState(true);
   
-  // If the props don't specify whether the field is active, assume it should be.
-  let isactive = (props.isactive === undefined ? true : props.isactive);
+  // If the  don't specify whether the field is active, assume it should be.
+  let isactive: boolean = (isActive === undefined ? true : isActive);
   
-  const changeEnteredText = function(text){
+  const changeEnteredText = function(text: string){
     console.log("Running changeEnteredText");
     setEnteredText(text);
-    setEnteredTextIsValid(props.validateEntry(text));
+    if(validateEntry !== undefined && validateEntry !== null) {
+      setEnteredTextIsValid(validateEntry(text));
+    }
   }
-  /*
-    <DepositViewerTextEntryField
-      defaultValue = "Enter wallet's primary address"
-      isactive={props.textEntryIsActive === undefined ? true : props.textEntryIsActive}
-      validateEntry = {validateAddress}
-      setEnteredText = {changeEnteredAddress}
-      value = {enteredAddress}
-    />
-   */
+
   return(
        <PageTextEntry 
-        defaultValue = {props.defaultValue}
+        defaultValue = {defaultValue}
         handleTextChange = {changeEnteredText}
         isactive={isactive}
         isValid={enteredTextIsValid}
         isSingleLineEntry = {true}
-        value = {enteredText}
        />
   )
 }

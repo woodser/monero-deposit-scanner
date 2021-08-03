@@ -1,7 +1,18 @@
 import React from "react";
 import "./TransactionTable.css";
+import { Transaction } from "../GlobalTypes";
 
-export default function(props){
+        //timeStamp: number,
+        //amount: number,
+        //fee: number,
+        //height: number,
+        //txHash: string
+
+type TransactionTableProps = {
+  transactions: Transaction[];
+}
+
+export default function({transactions}: TransactionTableProps){
 
   const TABLE_HEADER_JSX =
     <tr key = "Header">
@@ -12,7 +23,7 @@ export default function(props){
       <th>Transaction Hash</th>
     </tr>
     
-  let tableDataJsx = props.transactions.map((tx) => 
+  let tableDataJsx = transactions.map((tx) => 
     <tr key = {tx.toString()}>
       <td>{tx.timeStamp}</td>
       <td>{tx.amount}</td>

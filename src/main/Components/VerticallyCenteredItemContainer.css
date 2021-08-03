@@ -3,7 +3,3 @@ div {
   height: 100%;
   vertical-align: middle;
 }
-
-div > * {
-  vertical-align: middle;
-}

@@ -1,12 +1,16 @@
-import React from 'react';
+import React, { FC } from 'react';
 import loadingAnimation from "../img/loadingAnimation.gif";
-import VerticallyCenteredItemContainer from "./VerticallyCenteredItemContainer.js";
+import VerticallyCenteredItemContainer from "./VerticallyCenteredItemContainer";
 import './LoadingAnimation.css'
 
-export default function(props) {
+type LoadingAnimationProps = {
+  hide?: boolean
+}
+
+const componentFunction: FC<LoadingAnimationProps> = function({hide}: LoadingAnimationProps) {
   
   // Remove the "onLoad" attribute if no notification function is provided - this will avoid errors
-  let className = props.hide === true ? "hidden" : "";
+  let className: string = hide === true ? "hidden" : "";
 
   return ( 
     <VerticallyCenteredItemContainer>
@@ -17,5 +21,6 @@ export default function(props) {
       </img>
     </VerticallyCenteredItemContainer>
   );
-
 }
+
+export default componentFunction;

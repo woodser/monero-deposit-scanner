@@ -20,7 +20,7 @@
 
 h1 {
 	display: table-cell;
-	vertical-align: center;
+	vertical-align: middle;
 	grid-area: item2;
 }
 

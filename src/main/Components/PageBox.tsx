@@ -1,26 +1,42 @@
 import React from 'react';
+import './PageBox.css';
+import '../app.css';
+import * as CSS from 'csstype';
 
-export default function PageBox(props) {
+// All props are optional
+type PageBoxProps = {
+  boxWidth?: string,
+  bgColor?: string,
+  className?: string,
+  children?: JSX.Element | JSX.Element[]
+}
+
+export default function PageBox({boxWidth, bgColor, className, children}: PageBoxProps) {
   
-  let boxWidth;
-  let bgColor;
+  let style: CSS.Properties = {};
   
-  if (props.boxWidth === undefined) boxWidth = "200px";
-  if (props.bgColor === undefined) bgColor = "red";
-  
-  if(props.width !== undefined && props.width !== null){
-    boxWidth = props.width;
+  if(boxWidth !== null && boxWidth !== undefined){
+    Object.assign(style, {width: boxWidth});
+    console.log("setting boxWidth to : " + boxWidth);
+  }  else {
+        console.log("No boxwidth specified");
   }
-  if(props.backgroundColor !== undefined && props.backgroundColor !== null){
-    bgColor = props.backgroundColor;
+  if(bgColor !== null && bgColor !== undefined) {
+    Object.assign(style, {backgroundColor: bgColor});
+    console.log("Setting bgColor to " + bgColor);
+  } else {
+    console.log("No bgColor specified");
   }
+  
+  console.log("The style object: " + JSON.stringify(style));
+  
   
   return (
     <div 
-      className={"page_box " + props.className}
-      style = {{width: props.boxWidth, backgroundColor: bgColor}}
+      className={"page_box " + className}
+      style = {style}
     >
-      {props.children}
+      {children}
     </div>
   );
 }

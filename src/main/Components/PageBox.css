@@ -1,11 +1,3 @@
-.page_box > div {
-  margin: 0 auto;
-  background-color: green;
-  display: inline-block;
-  height: 100%;
-  margin: 0 auto;
-}
-
 .page_box > * {
 	width:80%;
   display: flex;

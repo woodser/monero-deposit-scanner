@@ -1,79 +1,83 @@
-import React, {useState, useRef} from 'react';
+import React, {ChangeEvent, MouseEvent, KeyboardEvent, useState, useRef} from 'react';
 import "./PageTextEntry.css";
+import CSS from "csstype";
+type PageTextEntryProps = {
+  handleTextChange?: (name: string) => void,
+  handleKeyPress?: (event: KeyboardEvent<HTMLTextAreaElement | HTMLInputElement>) => void,
+  className?: string,
+  isValid?: boolean,
+  isSingleLineEntry?: boolean,
+  overrideValue?: string,
+  defaultValue?: string,
+  isactive?: boolean,
+  style?: CSS.Properties
+}
 
-export default function (props) {
+export default function ({handleTextChange, className, isValid, isSingleLineEntry, overrideValue, defaultValue, handleKeyPress, isactive, style}: PageTextEntryProps) {
   
   const [value, setValue] = useState("");
-  const [displayedText, setDisplayedText] = useState("");
-  const isDefault = useRef(true);
+  const isDefault = useRef<boolean>(true);
 
   
-  const setText = function(text){
+  const setText = function(text: string){
     setDisplayedText: text
   }
-  
-  const handleClick = function() {
-    setValue("")
-    props.handleClick();
-  }
 
-  const handleChange = function(e){
+  const handleChange = function(event: React.ChangeEvent){
     console.log("onChange");
-    setValue(e.target.value);
-    if (e.target.value === "") {
+    setValue((event.target as HTMLTextAreaElement).value);
+    if ((event.target as HTMLTextAreaElement).value === "") {
       isDefault.current = true;
       
     } else{
       isDefault.current = false;
     }
-    if(props.handleTextChange != undefined){
-      props.handleTextChange(e.target.value);
+    if(handleTextChange != undefined){
+      handleTextChange((event.target as HTMLTextAreaElement).value);
     } 
   }
     
     
-    let className = props.className + 
+    let classname: string = className + 
       " text_box page_text_box " + 
       ((isDefault.current) ? " default_value" : " new_value") +
       // Use the "active" border either if the input is valid or if there IS NO input
-      ((props.isValid || isDefault.current ? " active_border" : " inactive_border"));
+      ((isValid || isDefault.current ? " active_border" : " inactive_border"));
     
-    let element = null;
-    let newValue = "";
-    if(props.overrideValue) {
-      newValue = props.overrideValue;
+    let element: JSX.Element;
+    let newValue: string = "";
+    if(overrideValue) {
+      newValue = overrideValue;
     } else if(!(value === "")){
-      if(props.overrideValue === null || props.overrideValue === undefined){
+      if(overrideValue === null || overrideValue === undefined){
         newValue = value;
       }
     }
     
-    if (props.isSingleLineEntry){
-      className = className + " single_line_text_entry";
+    if (isSingleLineEntry){
+      classname = classname + " single_line_text_entry";
       element = (
         <input
           type="text"
-          className={className}
-          onKeyPress = {props.handleKeyPress}
+          className={classname}
+          onKeyPress = {handleKeyPress}
           onChange={handleChange}
-          disabled={!props.isactive}
+          disabled={!isactive}
           value = {newValue}
-          placeholder = {props.defaultValue}
-          onClick = {props.handleClick}
-          style = {props.style}
+          placeholder = {defaultValue}
+          style = {style}
         />
       );
     } else {
       element = (
         <textarea
           className={className}
-          onKeyPress = {props.handleKeyPress}
+          onKeyPress = {handleKeyPress}
           onChange={handleChange} 
-          disabled={!props.isactive}
+          disabled={!isactive}
           value = {newValue === "" ? undefined : newValue}
-          onClick = {props.handleClick}
-          placeholder = {props.defaultValue}
-          style = {props.style}
+          placeholder = {defaultValue}
+          style = {style}
         />
       );
     }

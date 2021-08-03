@@ -1,61 +1,65 @@
 import React from 'react';
 import "./buttons.css";
-import { xmrToAtomicUnits } from 'monero-javascript/src/main/js/common/MoneroUtils';
-import ProgressBar from "./ProgressBar.js";
+import ProgressBar from "./ProgressBar";
+
 /*
  * A generic function to create a multipurpose "swiss army knife" button, which may display:
  * 1. A button labeled with a provided message
  * 2. A button labeled with a provided message and an accompanying image (such as a loading indicator)
  * 3. A progress bar indicator containing the message and optional image.
  */
-export function SubmitButton(props){
+ 
+ /*
+  * props:
+  *  isActive: boolean
+  *  showProgressBar: boolean
+  *  progress: number
+  *  action: (e: event) => void
+  *  image: React.FC
+  *  message: string
+  */
+  
+type SubmitButtonsProps = {
+  isActive: boolean,
+  showProgressBar: boolean,
+  progress: number,
+  action?: () => void | undefined,
+  image: JSX.Element,
+  message: string
+}
+ 
+export function SubmitButton({isActive, showProgressBar, progress, action, image, message}: SubmitButtonsProps) {
 
-  //props.percentScanned fills in the progress bar
-  let className = "";
-  if(props.isActive){
+  //percentScanned fills in the progress bar
+  let className;
+  if(isActive){
     className = "submit_button";
   } else {
     className = "submit_button submit_button_inactive";
   }
   
-  /*
-    <SubmitButton 
-      syncProgress = {props.syncProgress}
-      message = {message}
-      image = {loadingAnimation}
-      alt_element = {progressBar}
-    />
-   */
-   
-  console.log("Button props.progress: " + props.progress);
-   
-  let renderElement;
-  
-  if (props.showProgressBar){
-    renderElement = (
+  console.log("Button progress: " + progress);
+  console.log("Show progress bar?" + showProgressBar.toString());
+  if (showProgressBar){
+    return(
       <ProgressBar 
-        progress = {props.progress}
+        progress = {progress}
         className = {className}
       >
-        <span>{props.message}</span>
-        {props.image}
+        <span>{message}</span>
+        {image}
       </ProgressBar>      
     )
   } else {
-    renderElement = ( 
+    return ( 
       <div
         className = {className}
-        onClick = {props.action}
+        onClick = {action}
       >
-        <span>{props.message}</span>
-        {props.image}
+        <span>{message}</span>
+        {image}
       </div>
     )
   }
   
-  return(
-    <>
-      {renderElement}
-    </>
-  );
 }

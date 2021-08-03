@@ -15,6 +15,8 @@
   "license": "MIT",
   "dependencies": {
     "@babel/plugin-transform-runtime": "^7.14.5",
+    "@types/node": "^16.6.1",
+    "@types/react": "^17.0.15",
     "assert": "^2.0.0",
     "https-browserify": "^1.0.0",
     "monero-javascript": "^0.5.4",
