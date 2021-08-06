@@ -1,5 +1,5 @@
 import React, {useState, useRef, useEffect} from 'react';
-import ReactDOM from 'react-dom';
+
 import {SubmitButton} from "./Components/MoneroButtons.js";
 import LoadingAnimation from "./Components/LoadingAnimation.js";
 import "./app.css";
@@ -12,6 +12,7 @@ import TitleBar from "./Components/TitleBar.js";
 import { xmrToAtomicUnits } from 'monero-javascript/src/main/js/common/MoneroUtils';
 import { WORKER_DIST_PATH_DEFAULT } from 'monero-javascript/src/main/js/common/LibraryUtils';
 import ProgressBar from "./Components/ProgressBar.js";
+import TransactionTable from "./Components/TransactionTable.js";
 
 const monerojs = require("monero-javascript");
 const MoneroUtils = monerojs.MoneroUtils;
@@ -35,7 +36,7 @@ export default function App(props){
     </div>
   const WALLET_INFO = {
     networkType: "stagenet",
-    serverUri: "http://localhost:80",
+    serverUri: "http://134.122.121.42:80",
   }
   
   // State
@@ -50,6 +51,8 @@ export default function App(props){
   const [buttonState, setButtonState] = useState(0);
   const [syncProgress, setSyncProgress] = useState(0);
 
+  const [transactionList, setTransactionList] = useState([]);
+
   const addressIsValid = useRef(false);
   const viewKeyIsValid = useRef(false);
   const restoreHeightIsValid = useRef(false);
@@ -58,6 +61,42 @@ export default function App(props){
     
   // This function is purely for testing!
   const currentStep = useRef(0);
+  
+  const addTransaction = function(transaction){
+    setTransactionList(transactionList.concat(transaction));
+    console.log("New transaction list: " + transactionList);
+  }
+  /* 
+   * monero-javascript returns transaction datetimes in the form of an integer representing
+   * the number of milliseconds that have passed since te epoch.
+   * The spec requires dates to be displayed in the format:
+   * YYYY-MM-DD HH:MM:SS UTC
+   */
+   const convertMillisecondsToFormattedDateString = function(t){
+     let date = new Date(t);
+     return(
+       date.getUTCFullYear() + "-" + (date.getUTCMonth()+1) + "-" + date.getUTCDate() + " " + 
+       date.getUTCHours() + ":" + date.getUTCMinutes() + ":" + date.getUTCSeconds() + " UTC"
+     )
+   }
+  
+  // This function is strictly for generating a dummy list for debugging!
+  const generateRandomTransaction = function(tx) {
+    const genRanHex = size => [...Array(size)].map(() => Math.floor(Math.random() * 16).toString(16)).join('');
+    const maxTime = new Date().getTime();
+    let randomTimeMilliseconds = Math.trunc(Math.random() * maxTime); 
+    console.log("first random hex: " + genRanHex(64).toString());
+    return(
+      {
+        timeStamp: convertMillisecondsToFormattedDateString(randomTimeMilliseconds),
+        amount: (Math.random() * 5000).toFixed(12),
+        fee: (Math.random() * 10).toFixed(12),
+        height: Math.trunc(Math.random() * 9999999).toString(),
+        txHash: genRanHex(64).toString()
+      }
+    )
+  }
+  
   const testSubmitButtonDisplay = function(){
     
     currentStep.current++;
@@ -76,12 +115,16 @@ export default function App(props){
       case 3:
         setButtonState(3);
         setSyncProgress(1);
+        addTransaction(generateRandomTransaction());
         break;
       case 4:
         setSyncProgress(25);
+        addTransaction(generateRandomTransaction());
         break;
       case 5:
         setSyncProgress(50);
+        addTransaction(generateRandomTransaction());
+        addTransaction(generateRandomTransaction());
         break;
       case 6:
         setSyncProgress(75);
@@ -89,6 +132,7 @@ export default function App(props){
       case 7:
         setSyncProgress(99);
         setButtonState(4);
+        addTransaction(generateRandomTransaction());
         break;
       case 8: 
         setButtonState(4);
@@ -113,10 +157,11 @@ export default function App(props){
     // required to use it.
     let dateWallet;
     try {
+      console.log("Attempting to create wallet");
       dateWallet = await monerojs.createWalletFull({
         password: "supersecretpassword123",
         networkType: "stagenet",
-        serverUri: "http://localhost:80",
+        serverUri: "134.122.121.42:80",
       });
     } catch(e){
       throw("Date wallet creation failed: " + e);
@@ -400,6 +445,8 @@ export default function App(props){
          />
          <div className = "small_spacer"></div>
            {buttonElement}
+         <div className = "small_spacer"></div>
+           <TransactionTable transactions = {transactionList} />
          <div className = "large_spacer"></div>
        </PageBox>
       </>    
