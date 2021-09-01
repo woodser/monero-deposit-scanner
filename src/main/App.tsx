@@ -37,6 +37,10 @@ export default function App(){
   const PAGE_BOX_WIDTH = "1024px";
   const PAGE_BOX_COLOR = "#f2be00";
   
+  //The date on which the first Monero block was mined. Used to determine user-entered restore height date validity
+  const MONERO_EPOCH_YEAR = 2014;
+  const CURRENT_YEAR = new Date().getFullYear();
+  
   const TITLE = "Monero deposit viewer";
   const DESCRIPTION = 
     <div className = "description">
@@ -315,8 +319,187 @@ export default function App(){
     }
     return true;
   } 
-  const validateRestoreHeight = function(restoreHeight: string): boolean {
+  
+  /* This function will only check for valid characters!
+   *
+   * per woodser:
+   * I'd stick with complete validation of address and viewkey on every keystroke, 
+   * disabling the button and showing red if invalid
+   * and then for the date, doing pattern matching validation on every keystroke and 
+   * complete validation on focus out, showing red and disabling the button if invalid 
+   */
+   
+   /*
+    * this is the first of two functions for validating restore height.
+    * this is the "lite" version; it only checks that the entered eight matches a pattern:
+    * "#...#" or "##/##/####"
+    * and will turn the text box red if it does not
+    * This is done in order not to indicate invalid input when the user has started to enter
+    * BUT NOT FINISHED ENTERING a valid restore height.
+    */
+    
+    // TODO: 
+  const validateRestoreHeightPattern = function(restoreHeight: string): boolean {
     console.log("Validating restore height");
+    
+    // Check to see if the entered height contains non-digit characters
+    const nonDigitRegex = new RegExp('[^0-9]', 'g');
+    const validNonDigitRegex = new RegExp('(/\|-)');
+    
+    let matches: RegExpMatchArray[] = [...restoreHeight.matchAll(nonDigitRegex)];
+
+    // If there ARE any matches...
+    if (matches.length > 0) {
+      /*
+       * A valid date, even incompletely typed, will DEFINITELY meet two requirements:
+       * 1. It will be no longer than 10 characters
+       * 2. It will have no more than two non-digit characters
+       */
+      if(restoreHeight.length > 10 || matches.length > 2) {
+        return false;
+      }
+      
+      /*
+       * The first non-digit character should either be a "/" or a "-" and should only
+       * occur at element 1 (if single-digit month) or two (if double-digit month)
+       */ 
+      let monthBumper = 1;
+      if(validNonDigitRegex.test(matches[0][0])) {
+        // If the first delimitter is in element 1
+        if(matches[0].index === 1) {
+          // The month is only one digit
+          monthBumper = 0;
+        } else if (matches[0].index === 2) {
+          // Verify that the month string as a number is <= 12
+          let monthAsNum = parseInt(restoreHeight.slice(0,2), 10);
+          if(monthAsNum === 0 || monthAsNum > 12) {
+            console.log("Month must be between 1 and 12")
+            return false;
+          }
+        } else {
+          //The first delimitter is in an invalid position.
+          console.log("The first delimiter is in an invalid position");
+          return false;
+        }
+      } else {
+        //The first delimiter is not a valid delimiter char
+        console.log("The first delimitter is not a valid delimitter character.");
+        return false;
+      }
+      
+      /*
+       * The first non-digit character must be valid. Next...
+       * * See if the user has typed or started to type a day
+       * * Check the second non-digit character for validity:
+       */
+      /*
+       * when checking the position of the second non-digit character for validity, the app
+       * must take into account whether the month was a single or double-digit value as that will affect
+       * which positions are valid for the second non-digit character
+       */
+      
+      // has the user started to enter a day?
+      let dayAsNum: number;
+      let dayBumper: number = 0;
+      
+      
+      
+      
+      
+      
+      //TODO: characters including an coming oafter the second delimitter should not be considered when determing day is only 1 or two digits
+      
+      
+      
+      
+      
+      
+      console.log("restoreHeightLength: " + restoreHeight.length + "; matches[0].index: " + (matches[0].index || -1).toString());
+      // If the user has typed at least one day digit
+      if(restoreHeight.length > (matches[0].index || -1) + 2) {
+        console.log("The user has typed at least one day digit")
+        // If there are at least two caracters after the first delimiter
+        if(restoreHeight.length > (matches[0].index || -1) + 3) {
+          console.log("The user has typed two or more day digits; dayBumper should not be set to zero!");
+          //dayBumper = 1;
+          // Is there a second delimiter? 
+          if(matches.length === 2) {
+            // We expect the user to be consistent in using either "/" or "-" as a delimiter
+            if(!(matches[1][0] === matches[0][0])) {
+              console.log("The second delimiter is either an invalid delimiter or is not consistent with the first delimiter");
+              return false;
+              
+            //If the delimitter is in an invalid position (ie adjacent to the first or more than two characters AFTER the first)
+            /*
+             * "(matches[1].index || -1)" SHOULD NOT BE NECESSARY; however, omitting it causes an error that matches[1].index could be undefined.
+             * which is patently untrue due to the parent conditional "if (matches.length === 2)"
+             */
+            } else if(matches[1].index === (matches[0].index || -1) + 1 || (matches[1].index || -1) > (matches[0].index || -1) + 3) {
+              console.log("There must be exactly 1 or 2 digits between the delimitters");  
+              return false;
+            } else {
+              console.log("There is a second, valid delimitter.");
+              // If the entered day is two digits:
+              if(matches[1].index === matches[0].index + 3) {
+                console.log("Setting dayBumper to 1");
+                dayBumper = 1;
+              }
+            }
+          // Is the user starting to type a day longer than 2 digits?
+          } else if(restoreHeight.length > 4 + monthBumper) {
+            //The user attempted to type a day with more than two digits
+            console.log("Day cannot be longer than two digits");
+            return false;
+          //There are exactly two day digits. Verify that they are valid. 
+          } else {
+            
+            
+            
+            
+            
+            
+            
+            // START HERE
+            
+            
+            
+            
+            
+           dayAsNum = parseInt(restoreHeight.slice(2 + monthBumper, 4 + monthBumper), 10);
+            // Is the day a valid number between 1 and 32?
+            if(dayAsNum === 0 || dayAsNum > 31){
+              // invalid day value
+              console.log("Day must be a value between 1 and 31");
+              return false;
+            }           
+          }        
+        }
+      }
+      
+      console.log(" ");
+      console.log("monthBumper: " + monthBumper + ", dayBumper: " + dayBumper);
+      console.log(" ");
+      
+      //Finally, make sure the year (or portion of it entered) is no more than four digits
+      // if the user has entered or started to enter a year:
+      if(restoreHeight.length > 4 + dayBumper + monthBumper) {
+        if(restoreHeight.length > (8 + monthBumper + dayBumper)){
+          //The year has more than four digits and is therefore invalid
+          console.log("Invalid year");
+          return false;
+        // If the year is between 1 and 4 digits
+        } else if (restoreHeight.length === 8 + monthBumper + dayBumper){ 
+          console.log("Year: " + restoreHeight.slice(4 + monthBumper + dayBumper));
+          let yearAsNum = Number(restoreHeight.slice(4 + monthBumper + dayBumper));
+          console.log("yearAsNum: " + yearAsNum.toString());
+          if(yearAsNum < MONERO_EPOCH_YEAR || yearAsNum > CURRENT_YEAR) {
+            console.log("Year must be >= 2014 and <= " + CURRENT_YEAR.toString());
+            return false;
+          }
+        }
+      }
+    }
+    console.log("Valid date entered (so far)");
     return true;
   }
   
@@ -453,7 +636,7 @@ export default function App(){
          />
          <div className = "small_spacer"></div>
          <DepositViewerTextEntryField
-           validateEntry = {validateRestoreHeight}
+           validateEntry = {validateRestoreHeightPattern}
            defaultValue = "Enter restore height or date (yyyy-mm-dd)"
          />
          <div className = "small_spacer"></div>
