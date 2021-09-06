@@ -16,6 +16,11 @@ module.exports = {
   module: {
     rules: [
       {
+        test: /\.tsx?$/,
+        loader: 'ts-loader',
+        exclude: /node_modules/
+      },
+      {
         test: /\.js$/,
         exclude: /node_modules/,
         type: "javascript/auto",
@@ -46,11 +51,12 @@ module.exports = {
         use: ['style-loader', 'css-loader'],
       },
       {
-        test: /\.(jpe?g|png|gif)$/,
-        use: [{
-          loader: 'file-loader'
-        }]
-      }
+        test: /\.(png|jpe?g|gif|jp2|webp)$/,
+        loader: 'file-loader',
+        options: {
+          name: '[name].[ext]',
+        },
+      },
     ],
   },
   mode: 'development',
@@ -82,7 +88,7 @@ module.exports = {
     }),
   ],
   resolve: {
-    extensions: [".ts", ".js"],
+    extensions: [".ts", ".tsx", ".js"],
     fallback: {
       "child_process": false,
       "fs": false

@@ -1,0 +1,6 @@
+.loading_animation {
+	margin: 0 auto;
+  flex: none;
+  height: var(--loading-animation-size);
+  width: var(--loading-animation-size);
+}
