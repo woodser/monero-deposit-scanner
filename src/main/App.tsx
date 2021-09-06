@@ -54,7 +54,7 @@ export default function App(){
       }
   
   // State
-
+  
   const [balance, setBalance] = useState<BigInteger>(BigInteger(0));
   const [deposits, setDeposits] = useState([]);
   const [walletAddress, setWalletAddress] = useState<string | null>(null);
@@ -67,14 +67,16 @@ export default function App(){
 
   const [transactionList, setTransactionList] = useState([] as Transaction[]);
 
-  const addressIsValid = useRef(false);
-  const viewKeyIsValid = useRef(false);
+  const addressIsValid = useRef<boolean>(false);
+  const viewKeyIsValid = useRef<boolean>(false);
   const restoreHeightIsValid = useRef(false);
-  const wallet = useRef<Promise<any> | any>();
-  const dateConversionWallet = useRef<any | null>(null);
+  const wallet = useRef<Promise<MoneroWalletFull> | MoneroWalletFull>();
+  const dateConversionWallet = useRef<MoneroWalletFull | null>(null);
     
   // This function is purely for testing!
-  const currentStep = useRef(0);
+  const currentStep = useRef<number>(0);
+  
+  const fullModuleIsLoaded = useRef<boolean>(false);
   
   /*
   {
@@ -223,33 +225,20 @@ export default function App(){
     //dateConversionWallet.current = null;
   }
   
-  // Will probably be removed - not sure this serves any purpose in this app
-  const loadKeysModule = async function() {
-    try {
-      await LibraryUtils.loadKeysModule();
-    } catch(e) {
-      throw(e);
-    }
-  }
-  
-  const loadFullModule = async function() {
-    try {
-      await LibraryUtils.loadFullModule();
-    } catch(e) {
-      throw(e);
-    }
-  }
-  
   useEffect(function() {
     
     async function loadPreRequisites(){
       
       try {
-        await loadFullModule();
+        LibraryUtils.loadFullModule().then(() => {
+          console.log("Full module loaded");
+          fullModuleIsLoaded.current = true;
+        });
       } catch(e) {
         console.log(e);
         return;
       }
+      
       
       try {
         dateConversionWallet.current = await createDateConversionWallet();
@@ -309,7 +298,7 @@ export default function App(){
   }
   
   const validateAddress = function(address: string){
-    return MoneroUtils.isValidAddress(address, MoneroNetworkType.MAINNET);
+    return MoneroUtils.isValidAddress(address, MoneroNetworkType.STAGENET);
   }
   const validateViewKey = function(viewKey: string): boolean{
     try {
