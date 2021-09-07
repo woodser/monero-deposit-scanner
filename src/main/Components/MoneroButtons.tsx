@@ -38,8 +38,6 @@ export function SubmitButton({isActive, showProgressBar, progress, action, image
     className = "submit_button submit_button_inactive";
   }
   
-  console.log("Button progress: " + progress);
-  console.log("Show progress bar?" + showProgressBar.toString());
   if (showProgressBar){
     return(
       <ProgressBar 

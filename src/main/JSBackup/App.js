@@ -83,24 +83,8 @@ export default function App(props){
        date.getUTCHours() + ":" + date.getUTCMinutes() + ":" + date.getUTCSeconds() + " UTC"
      )
    }
-  
-  // This function is strictly for generating a dummy list for debugging!
-  const generateRandomTransaction = function() {
-    const genRanHex = size => [...Array(size)].map(() => Math.floor(Math.random() * 16).toString(16)).join('');
-    const maxTime = new Date().getTime();
-    let randomTimeMilliseconds = Math.trunc(Math.random() * maxTime); 
-    console.log("first random hex: " + genRanHex(64).toString());
-    return(
-      {
-        timeStamp: convertMillisecondsToFormattedDateString(randomTimeMilliseconds),
-        amount: (Math.random() * 5000).toFixed(12),
-        fee: (Math.random() * 10).toFixed(12),
-        height: Math.trunc(Math.random() * 9999999).toString(),
-        txHash: genRanHex(64).toString()
-      }
-    )
-  }
-  
+   
+  /*
   const testSubmitButtonDisplay = function(){
     
     currentStep.current++;
@@ -153,7 +137,7 @@ export default function App(props){
         console.log("Switch defaulted on its loan ;)");
 	  }
   }	
-  
+  */
   
    const createDateConversionWallet = async function(){
     // Create a disposable,random wallet to prepare for the possibility that the user will attempt to restore from a date

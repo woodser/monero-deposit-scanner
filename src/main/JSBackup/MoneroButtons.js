@@ -27,8 +27,6 @@ export function SubmitButton(props){
     />
    */
    
-  console.log("Button props.progress: " + props.progress);
-   
   let renderElement;
   
   if (props.showProgressBar){

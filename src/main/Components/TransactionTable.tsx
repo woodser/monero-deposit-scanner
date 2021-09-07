@@ -13,7 +13,7 @@ type TransactionTableProps = {
 }
 
 export default function({transactions}: TransactionTableProps){
-
+  console.log("there are " + transactions.length + "TXs");
   const TABLE_HEADER_JSX =
     <tr key = "Header">
       <th>Timestamp</th>
@@ -32,7 +32,6 @@ export default function({transactions}: TransactionTableProps){
       <td>{tx.txHash}</td>
     </tr>
   )
-  console.log("tableDataJsx: " + tableDataJsx.toString());
   // Add together the header and transaction arrays for form a complete table
   let tableJsx = [TABLE_HEADER_JSX].concat(tableDataJsx);
 

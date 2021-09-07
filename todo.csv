@@ -1,0 +1,6 @@
+PRIORITY,STYLE,FUNCTION
+HIGH,* stresstester style button (click colors etc),
+,* Increase H1 font size,* Button creates and syncs wallet
+,* fix indents in app.js render/return,
+,,
+LOW,* Change date format to yyyy-mm-dd,

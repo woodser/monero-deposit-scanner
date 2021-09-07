@@ -21,7 +21,6 @@ export default function(props){
       <td>{tx.txHash}</td>
     </tr>
   )
-  console.log("tableDataJsx: " + tableDataJsx.toString());
   // Add together the header and transaction arrays for form a complete table
   let tableJsx = [TABLE_HEADER_JSX].concat(tableDataJsx);
 

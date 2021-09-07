@@ -17,19 +17,11 @@ export default function PageBox({boxWidth, bgColor, className, children}: PageBo
   
   if(boxWidth !== null && boxWidth !== undefined){
     Object.assign(style, {width: boxWidth});
-    console.log("setting boxWidth to : " + boxWidth);
-  }  else {
-        console.log("No boxwidth specified");
   }
+  
   if(bgColor !== null && bgColor !== undefined) {
     Object.assign(style, {backgroundColor: bgColor});
-    console.log("Setting bgColor to " + bgColor);
-  } else {
-    console.log("No bgColor specified");
   }
-  
-  console.log("The style object: " + JSON.stringify(style));
-  
   
   return (
     <div 
