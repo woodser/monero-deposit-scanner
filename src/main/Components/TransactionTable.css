@@ -1,4 +1,6 @@
-td {
-	overflow-wrap: break-word;
-	max-width: 10vw;
+tbody {
+	table-layout: fixed;
+	border-spacing: 2vw;
+  text-overflow: clip;
+	width: var(--item-width);
 }
