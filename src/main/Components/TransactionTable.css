@@ -13,6 +13,7 @@ td {
 	overflow: hidden;
 	text-overflow: ellipsis;
 }
+
 .timestamp {
 	width: 21%;
 }
@@ -28,4 +29,10 @@ td {
 .hash {
   max-width: 39%;
   text-overflow: clip;
+}
+
+td.expandable_hash:hover {
+	text-overflow: inherit;
+	word-wrap: break-word;
+	background-color: yellow;
 }

@@ -23,13 +23,13 @@ export default function({transactions}: TransactionTableProps){
       <th>Transaction Hash</th>
     </tr>
     
-  let tableDataJsx = transactions.map((tx) => 
-    <tr key = {tx.toString()}>
+  let tableDataJsx = transactions.map((tx, index) => 
+    <tr key = {index}>
       <td>{tx.timeStamp}</td>
       <td>{tx.amount}</td>
       <td>{tx.fee}</td>
       <td>{tx.height}</td>
-      <td>{tx.txHash}</td>
+      <td className = "expandable_hash">{tx.txHash}</td>
     </tr>
   )
 
