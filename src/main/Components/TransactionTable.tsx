@@ -32,13 +32,21 @@ export default function({transactions}: TransactionTableProps){
       <td>{tx.txHash}</td>
     </tr>
   )
-  // Add together the header and transaction arrays for form a complete table
-  let tableJsx = [TABLE_HEADER_JSX].concat(tableDataJsx);
 
   return(
     <table>
+      <colgroup>
+        <col span={1} className = "timestamp" />
+        <col span={1} className = "amount" />
+        <col span={1} className = "fee" />
+        <col span={1} className = "height" />
+        <col span={1} className = "hash" />
+      </colgroup>
+      <thead>
+        {TABLE_HEADER_JSX}
+      </thead>
       <tbody>
-        {tableJsx}
+        {tableDataJsx}
       </tbody>
     </table>
   )

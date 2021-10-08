@@ -1,6 +1,31 @@
-tbody {
+table {
 	table-layout: fixed;
 	border-spacing: 2vw;
-  text-overflow: clip;
+	border-collapse: collapse;
 	width: var(--item-width);
+}
+
+tr {
+	height: 4vw;
+}
+
+td {
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+.timestamp {
+	width: 21%;
+}
+.amount{
+  width: 11%;
+}
+.fee {
+  width: 16%;
+}
+.height {
+  width: 13%;
+}
+.hash {
+  max-width: 39%;
+  text-overflow: clip;
 }
