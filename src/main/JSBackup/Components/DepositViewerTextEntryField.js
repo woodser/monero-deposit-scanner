@@ -15,7 +15,6 @@ export default function DepositViewerTextEntryField(props){
   let isactive = (props.isactive === undefined ? true : props.isactive);
   
   const changeEnteredText = function(text){
-    console.log("Running changeEnteredText");
     setEnteredText(text);
     setEnteredTextIsValid(props.validateEntry(text));
   }

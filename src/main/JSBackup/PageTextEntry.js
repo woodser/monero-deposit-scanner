@@ -18,7 +18,6 @@ export default function (props) {
   }
 
   const handleChange = function(e){
-    console.log("onChange");
     setValue(e.target.value);
     if (e.target.value === "") {
       isDefault.current = true;

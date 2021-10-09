@@ -16,8 +16,6 @@ export default function(props) {
     width: props.progress.toString()
   }
   
-  console.log("props.progress: " + props.progress);
-  
   return(
     <div className = {props.className}>
       <div 

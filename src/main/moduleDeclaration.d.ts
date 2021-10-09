@@ -14,6 +14,8 @@ declare module 'monero-javascript' {
     function loadKeysModule(): Promise<MoneroWalletKeys>;
   }
   
+  export function connectToDaemonRpc(uriOrConfigOrConnection: MoneroRpcConnection): MoneroDaemonRpc;
+  
   export function createWalletFull(config: {
     path?: string,
     password?: string,
@@ -40,14 +42,27 @@ declare module 'monero-javascript' {
     const TESTNET: number;
   }
   
-  declare module MoneroWalletListener {
-    
-    export class MoneroWalletListener {
-
-    }
-    
-
-
+  declare class MoneroTxWallet {
+    getReceivedTimestamp(): number;
+    getFee(): BigInteger;
+    getIncomingAmount(): BigInteger;
+    getHeight(): number;
+    getHash(): string;
+    isConfirmed(): boolean;
+  }
+  
+  declare class MoneroRpcConnection {
+    constructor(uriOrConfigOrConnection);
+  }
+  
+  declare class MoneroDaemonRpc {
+    async getBlockHeaderByHeight(height: number): Promise<MoneroBlockHeader>;
+    async getRpcConnection(): Promise<MoneroRpcConnection>;
+    async getHeight(): Promise<number>;
+  }
+  
+  declare class MoneroBlockHeader {
+    getTimestamp(): number;
   }
   
   declare module MoneroUtils {
@@ -60,6 +75,19 @@ declare module 'monero-javascript' {
   declare class MoneroWalletFull{
     async addListener(listener: MoneroWalletListener): Promise<void>;
     async startSyncing(): Promise<void>;
+    async getHeightByDate(year: number, month: number, day: number): Promise<number>;
+    async getTx(hash: string): Promise<MoneroTxWallet>;
+    async getPrivateViewKey(): Promise<string>;
+    async getAddress(accountIdx: int, subaddressIdx: int): Promise<string>;
+    
+  }
+  
+  declare class MoneroWalletListener {
+    
+  }
+  
+  declare class MoneroOutputWallet {
+    getTx(): MoneroTxWallet;
   }
  
   //function BigInteger(n: number): Uint8Array;
