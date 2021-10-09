@@ -31,8 +31,7 @@ td {
   text-overflow: clip;
 }
 
-td.expandable_hash:hover {
+td.expandable:hover {
 	text-overflow: inherit;
 	word-wrap: break-word;
-	background-color: yellow;
 }

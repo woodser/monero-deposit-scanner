@@ -26,10 +26,10 @@ export default function({transactions}: TransactionTableProps){
   let tableDataJsx = transactions.map((tx, index) => 
     <tr key = {index}>
       <td>{tx.timeStamp}</td>
-      <td>{tx.amount}</td>
+      <td className = "expandable">{tx.amount}</td>
       <td>{tx.fee}</td>
       <td>{tx.height}</td>
-      <td className = "expandable_hash">{tx.txHash}</td>
+      <td className = "expandable">{tx.txHash}</td>
     </tr>
   )
 
