@@ -37,8 +37,6 @@ export default function({isActive, defaultValue, validateEntry, notifyParentOfCh
       notifyParentOfChange();
     }
   }
-  
-  console.log("Re-rendering text field");
 
   return(
        <PageTextEntry 

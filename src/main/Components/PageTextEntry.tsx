@@ -24,7 +24,6 @@ export default function ({handleTextChange, className, isValid, isSingleLineEntr
   }
 
   const handleChange = function(event: React.ChangeEvent){
-    console.log("onChange");
     setValue((event.target as HTMLTextAreaElement).value);
     if ((event.target as HTMLTextAreaElement).value === "") {
       isDefault.current = true;
