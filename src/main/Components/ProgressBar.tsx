@@ -22,8 +22,6 @@ export default function({progress, children, className}: ProgressBarProps) {
     width: progress.toString()
   }
   
-  console.log("progress: " + progress);
-  
   return(
     <div className = {className}>
       <div 
