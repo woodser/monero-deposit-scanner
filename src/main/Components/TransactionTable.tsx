@@ -13,7 +13,6 @@ type TransactionTableProps = {
 }
 
 export default function({transactions}: TransactionTableProps){
-  console.log("there are " + transactions.length + "TXs");
   const TABLE_HEADER_JSX =
     <tr key = "Header">
       <th>Timestamp</th>

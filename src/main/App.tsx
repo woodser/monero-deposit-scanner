@@ -151,7 +151,7 @@ export default function App() {
       try {
         await LibraryUtils.loadFullModule();
       } catch (e) {
-        console.log("Error loading FullModule: " + e);
+        
         return;
       }
       fullModuleIsLoaded.current = true;
@@ -159,9 +159,9 @@ export default function App() {
       // Create a daemon connection using the MoneroRpcConnection
       try {
         daemonRpc.current = await monerojs.connectToDaemonRpc({uri: NODE_ADDRESS});
-        console.log("daemonRpc.current: " + JSON.stringify(daemonRpc.current));
+        
       } catch(e) {
-        console.log("Error creating daemon connection: " + e);
+        
       }
 
       /*
@@ -172,7 +172,7 @@ export default function App() {
       try {
         createDateConversionWallet();
       } catch (e) {
-        console.log("Error creating date wallet: " + e);
+        
         return;
       }
     }
@@ -181,8 +181,8 @@ export default function App() {
   }, []);
 
   useEffect(function(): void {
-    console.log("");
-    console.log("Successfully set tx list in state!");
+    
+    
   }, [transactionList])
 
   const addTransaction: (transaction: MoneroTxWallet) => void = async function (transaction) {
@@ -192,7 +192,7 @@ export default function App() {
      * again when confirmed, etc)
      */
     let currentTxHash: string = transaction.getHash();
-    console.log("Adding transaction with hash: " + currentTxHash);
+    
     if (!txHashes.current.includes(currentTxHash)) {
       txHashes.current.push(currentTxHash);
       // The typescript compiler mistakenly assumes that wallet could be "null".
@@ -203,36 +203,23 @@ export default function App() {
          */
 
         fullTx = await wallet.current.getTx(currentTxHash);
-        console.log(
-          "the tranaction as retrieved from wallet: " + fullTx.toString()
-        );
         // Convert the MoneroTxWallet to a viewable string representation
         // MoneroWalletListener fires onOutputReceived twice for every tx; first when unconfirmed and again when confirmed
         // In order to prevent duplicates,
 
-        //Print tx for debugging
-        console.log("tx: " + transaction.toString());
-        console.log(
-          "tx.getIncomingAmount(): " + fullTx.getIncomingAmount()
-        );
-        console.log("tx.getFee(): " + fullTx.getFee());
-        console.log(
-          "tx.getReceivedTimestamp(): " + fullTx.getReceivedTimestamp()
-        );
-         
         // The timestamp needs to be obtained from the daemon
         let timestamp: number;
         if(daemonRpc.current === null) {
-          console.log("Can't proceed without a daemon connection");
+          
           return;
         } else {
-          console.log("daemonRpc.current: " + JSON.stringify(daemonRpc.current));
-          console.log("daemonRpc.current.getRpcConnection: " + await daemonRpc.current.getRpcConnection());
-          console.log("daemonRpc.current.getHeight: " + await daemonRpc.current.getHeight());
+          
+          
+          
           const txHeight = fullTx.getHeight();
           const blockHeader = await daemonRpc.current.getBlockHeaderByHeight(txHeight);
           timestamp = blockHeader.getTimestamp();
-          console.log("timestamp: " + timestamp);
+          
         }
         
         let displayFormattedTransaction: Transaction = {
@@ -242,19 +229,19 @@ export default function App() {
           height: fullTx.getHeight().toString(),
           txHash: fullTx.getHash().toString()
         };
-        console.log("transactionList: " + transactionList.toString());
+        
         let txListCopy = transactionListHolder.current.slice();
-        console.log("txListCopy: " + txListCopy.toString());
+        
         txListCopy.push(displayFormattedTransaction);
-         console.log("txListCopy afterward: " +txListCopy.toString());      
+               
         transactionListHolder.current = txListCopy;
         setTransactionList(txListCopy);
-        console.log("Just set transaction list to txCopy");
+        
       } else {
-        console.log("wallet is null????");
+        
       }
     } else {
-      console.log("Hash is already in the list.");
+      
     }
   };
   /*
@@ -266,10 +253,10 @@ export default function App() {
   const convertMillisecondsToFormattedDateString: (
     t: number
   ) => string = function (t: number) {
-    console.log("Current date: " + new Date());
-    console.log("Creating date from number: " + t);
+    
+    
     let date = new Date(1622334);
-    console.log("The date: " + date.toString());
+    
     return (
       date.getUTCFullYear() +
       "-" +
@@ -292,7 +279,7 @@ export default function App() {
     const genRanHex: (size: number) => string = size => [...Array(size)].map(() => Math.floor(Math.random() * 16).toString(16)).join('');
     const maxTime = new Date().getTime();
     let randomTimeMilliseconds = Math.trunc(Math.random() * maxTime); 
-    // console.log("first random hex: " + genRanHex(64).toString());
+    // 
     return(
       {
         timeStamp: convertMillisecondsToFormattedDateString(randomTimeMilliseconds),
@@ -352,7 +339,7 @@ export default function App() {
     // At present, getRestoreHeightFromDate() is (erroneously) an instance method; thus, a wallet instance is
     // required to use it.
     try {
-      // console.log("Attempting to create wallet");
+      // 
       dateConversionWalletPromise.current = monerojs
         .createWalletFull(WALLET_INFO)
         .then(function (resolvedDateWallet: MoneroWalletFull) {
@@ -396,7 +383,7 @@ export default function App() {
   };
 
   const startScanning = async function () {
-    // console.log("start scanning!");
+    // 
     // Update the button's state
     setButtonState(2);
     /*
@@ -439,11 +426,10 @@ export default function App() {
           );
         }
       } catch {
-        // console.log("Invalid date!")
         restoreHeightIsValid.current = false;
         return;
       }
-      // console.log("height: " + JSON.stringify(height));
+      // 
       setButtonState(3);
     } else {
       if (restoreHeight === "") {
@@ -477,10 +463,10 @@ export default function App() {
         );
         wallet.current = resolvedWallet;
         wallet.current.getAddress(0, 0).then((address: string) => {
-          console.log("Synced wallet address: " + address);
+          
         });
         wallet.current.getPrivateViewKey().then((viewKey: string) => {
-          console.log("Synced wallet viewKey: " + viewKey);
+          
         });
 
         resolvedWallet.startSyncing();
@@ -489,7 +475,7 @@ export default function App() {
         // Does createWalletFull in fact return an "Error" object on failure?
       })
       .catch(function (e: Error) {
-        // console.log("Wallet creation error: " + e);
+        // 
         setButtonState(1);
       });
   };
@@ -517,7 +503,7 @@ export default function App() {
     // TODO: register once wherever is appropriate, but need to update state with updated balances from wallet listener
     await initWallet.addListener(new class extends MoneroWalletListener {
       async onBalancesChanged(newBalance: BigInteger, newUnlockedBalance: BigInteger) {
-        // console.log("wallet.onBalancesChanged(" + newBalance.toString() + ", " + newUnlockedBalance.toString() + ")");
+        // 
         setBalance(newBalance);
       }
     });
@@ -538,21 +524,18 @@ export default function App() {
      * But is NOT valid fo the purposes of the "action" button
      */
     if (address === "") {
-      console.log(
-        "empty address is valid for border color but NOT button activity"
-      );
       addressIsValid.current = false;
       setButtonState(0);
       // "" is not a valid entry to SUBMIT, but the text entry should not turn red until the user enters characters
       return true;
     }
     if (MoneroUtils.isValidAddress(address, MoneroNetworkType.STAGENET)) {
-      console.log("valid address entered");
+      
       addressIsValid.current = true;
       checkIfAllInputsAreValid();
       return true;
     } else {
-      console.log("invalid address entered");
+      
       addressIsValid.current = false;
       setButtonState(0);
       return false;
@@ -568,7 +551,7 @@ export default function App() {
      * But is NOT valid fo the purposes of the "action" button
      */
     if (viewKey === "") {
-      console.log("empty viewKey is valid for border, invalid for button");
+      
       viewKeyIsValid.current = false;
       setButtonState(0);
       return true;
@@ -577,13 +560,13 @@ export default function App() {
       MoneroUtils.validatePrivateViewKey(viewKey);
     } catch (e) {
       // The user entered an invalid view key
-      console.log("Invalid viewKey");
+      
       viewKeyIsValid.current = false;
       setButtonState(0);
       return false;
     }
     // The user entered a valid view key
-    console.log("Valid viewkey");
+    
     viewKeyIsValid.current = true;
     checkIfAllInputsAreValid();
     return true;
@@ -614,7 +597,7 @@ export default function App() {
     // Empty input is always "valid" when determining whether to render the red boder the input field
     // But is NOT valid fo the purposes of the "action" button
     if (restoreHeight === "") {
-      console.log("empty restore height is valid! default to '0'");
+      
       restoreHeightIsValid.current = true;
       checkIfAllInputsAreValid();
       return true;
@@ -644,7 +627,7 @@ export default function App() {
        * 2. It will have no more than two non-digit characters
        */
       if (restoreHeight.length > 10 || matches.length > 2) {
-        // console.log("Setting restoreHeightIsValid.current to false!");
+        // 
         restoreHeightIsValid.current = false;
         setButtonState(0);
         return false;
@@ -665,21 +648,20 @@ export default function App() {
           // Verify that the month string as a number is <= 12
           let monthAsNum = parseInt(restoreHeight.slice(0, 2), 10);
           if (monthAsNum === 0 || monthAsNum > 12) {
-            // console.log("Month must be between 1 and 12")
             restoreHeightIsValid.current = false;
             setButtonState(0);
             return false;
           }
         } else {
           //The first delimitter is in an invalid position.
-          // console.log("The first delimiter is in an invalid position");
+          // 
           restoreHeightIsValid.current = false;
           setButtonState(0);
           return false;
         }
       } else {
         //The first delimiter is not a valid delimiter char
-        // console.log("The first delimitter is not a valid delimitter character.");
+        // 
         restoreHeightIsValid.current = false;
         setButtonState(0);
         return false;
@@ -704,28 +686,27 @@ export default function App() {
       if(matches.length === 2) {
         isSecondDelimitter = true;
         if(matches[1].index === (matches[0].index + 1)) {
-          console.log("There must be at least one digit between delimitters!");
+          
           restoreHeightIsValid.current = false;
           setButtonState(0);
           return false;
         }
       }
-      // console.log("restoreHeightLength: " + restoreHeight.length + "; matches[0].index: " + (matches[0].index || -1).toString());
+      // 
       // If the user has typed at least one day digit
       if (restoreHeight.length > (matches[0].index || -1) + 1) {
-        // console.log("The user has typed at least one day digit")
         // If there are at least two caracters after the first delimiter
         if (restoreHeight.length > (matches[0].index || -1) + 2) {
-          // console.log("The user has typed two or more day digits; dayBumper should not be set to zero!");
+          // 
           //dayBumper = 1;
           // Is there a second delimiter?
           if (isSecondDelimitter) {
             // We expect the user to be consistent in using either "/" or "-" as a delimiter
-            console.log("Checking to see if matches are spaced correctly");
-            console.log("delimiter 1 index: " + matches[0].index);
-            console.log("Delimitter 2 index: " + matches[1].index);
+            
+            
+            
             if (!(matches[1][0] === matches[0][0])) {
-              console.log("The second delimiter is either an invalid delimiter or is not consistent with the first delimiter");
+              
               restoreHeightIsValid.current = false;
               setButtonState(0);
               return false;
@@ -736,29 +717,29 @@ export default function App() {
                * which is patently untrue due to the parent conditional "if (matches.length === 2)"
                */
             } else if ((matches[1].index || 0) > matches[0].index + 3) {
-              console.log("There cannot be more than two digits between delimiters!");
+              
               restoreHeightIsValid.current = false;
               setButtonState(0);
               return false;
             } else {
-              // console.log("There is a second, valid delimitter.");
+              // 
               // If the entered day is two digits:
               if (matches[1].index === (matches[0].index || -1) + 3) {
-                // console.log("Setting dayBumper to 1");
+                // 
                 dayBumper = 1;
               }
             }
             // Is the user starting to type a day longer than 2 digits?
           } else if (restoreHeight.length > 4 + monthBumper) {
             //The user attempted to type a day with more than two digits
-            // console.log("Day cannot be longer than two digits");
+            // 
             restoreHeightIsValid.current = false;
             setButtonState(0);
             return false;
           //There are exactly two day digits. Verify that they are valid.
           }
           
-          console.log("Verifying that day is in valid range");
+          
           dayAsNum = parseInt(
             restoreHeight.slice(2 + monthBumper, 4 + monthBumper),
             10
@@ -766,7 +747,7 @@ export default function App() {
           // Is the day a valid number between 1 and 32?
           if (dayAsNum === 0 || dayAsNum > 31) {
             // invalid day value
-            // console.log("Day must be a value between 1 and 31");
+            // 
             restoreHeightIsValid.current = false;
             setButtonState(0);
             return false;
@@ -775,28 +756,28 @@ export default function App() {
         }
       }
 
-      // console.log(" ");
-      // console.log("monthBumper: " + monthBumper + ", dayBumper: " + dayBumper);
-      // console.log(" ");
+      // 
+      // 
+      // 
 
       //Finally, make sure the year (or portion of it entered) is no more than four digits
       // if the user has entered or started to enter a year:
       if (restoreHeight.length > 4 + dayBumper + monthBumper) {
         if (restoreHeight.length > 8 + monthBumper + dayBumper) {
           //The year has more than four digits and is therefore invalid
-          // console.log("Invalid year");
+          // 
           restoreHeightIsValid.current = false;
           setButtonState(0);
           return false;
           // If the year is between 1 and 4 digits
         } else if (restoreHeight.length === 8 + monthBumper + dayBumper) {
-          // console.log("Year: " + restoreHeight.slice(4 + monthBumper + dayBumper));
+          // 
           let yearAsNum = Number(
             restoreHeight.slice(4 + monthBumper + dayBumper)
           );
-          // console.log("yearAsNum: " + yearAsNum.toString());
+          // 
           if (yearAsNum < MONERO_EPOCH_YEAR || yearAsNum > CURRENT_YEAR) {
-            // console.log("Year must be >= 2014 and <= " + CURRENT_YEAR.toString());
+            // 
             restoreHeightIsValid.current = false;
             setButtonState(0);
             return false;
@@ -806,7 +787,7 @@ export default function App() {
       }
     } else {
       // Restore height is just digits
-      // console.log("No regex matches");
+      // 
       enteredHeightIsDate.current = false;
 
       //Validate plain restore height
@@ -815,12 +796,12 @@ export default function App() {
       //Finally make sure it is <= current daemon height.
 
       if (isPositiveInteger(restoreHeight)) {
-        console.log("Height is positive int");
+        
         restoreHeightIsValid.current = true;
         checkIfAllInputsAreValid();
         return true;
       } else {
-        console.log("Height is not a positive int");
+        
         restoreHeightIsValid.current = false;
         setButtonState(0);
         return false;
@@ -851,7 +832,7 @@ export default function App() {
      * It causes the button to be "grayed out"
      */
     let isActive = false;
-    // console.log("ButtonState: ");
+    // 
     if (buttonState === 5) {
       handleSubmit = resetApp;
       buttonMessage = "View deposits to a different wallet";
@@ -897,7 +878,7 @@ export default function App() {
   };
 
   const useTestWallet: () => void = function () {
-    console.log("Using test wallet");
+    
     if (useOverrideWallet) {
       setUseOverrideWallet(false);
       validateAddress("");
@@ -947,9 +928,9 @@ export default function App() {
    *      - The button is ACTIVE
    *      - Clicking the button resets the app
    */
-  // console.log(" ");
-  // console.log("Rendering component");
-  // console.log(" ");
+  // 
+  // 
+  // 
 
   return (
     <>

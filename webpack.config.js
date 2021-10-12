@@ -66,13 +66,15 @@ module.exports = {
     filename: 'static/js/bundle.js',
   },
   devServer: {
-    contentBase: resolveAppPath('/src/main'), //directory where the app entry file lives
     compress: true, //compress served content as gzip
     hot: true, //enable hot reloading - modifying file causes browser to refresh with updates
     host, //default to localhost
     port: 8080,
-    publicPath: '/', // the path that the person viewing the page/app sees in the url bar
-    writeToDisk: true,
+    static: resolveAppPath('/src/main'), //directory where the app entry file lives
+    devMiddleware: {
+      writeToDisk: true,
+      publicPath: '/' // the path that the person viewing the page/app sees in the url bar
+    }
   },
   // tell HtmlWebpackPlugin to use index.html as the source file
   plugins: [
