@@ -69,6 +69,7 @@ type MoneroRpcConnection = monerojsExplicitImport.MoneroRpcConnection;
 const NODE_ADDRESS = "http://127.0.0.1:80/";
 const rpcConnection: MoneroRpcConnection = new MoneroRpcConnection({
   uri: NODE_ADDRESS,
+  username: "username",
   password: "password"
 });
 
@@ -158,7 +159,7 @@ export default function App() {
       
       // Create a daemon connection using the MoneroRpcConnection
       try {
-        daemonRpc.current = await monerojs.connectToDaemonRpc({uri: NODE_ADDRESS});
+        daemonRpc.current = await monerojs.connectToDaemonRpc({server: rpcConnection});
         
       } catch(e) {
         
