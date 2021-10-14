@@ -65,20 +65,14 @@ type MoneroRpcConnection = monerojsExplicitImport.MoneroRpcConnection;
 // Unfortunately, defining as a ref and attempting to use that ref with
 // .current results in a MoneroError stating that "current" is not a 
 // valid field of MoneroRpcConnection
-//const NODE_ADDRESS = "134.122.121.42:80/";
-const NODE_ADDRESS = "http://127.0.0.1:80/";
-const rpcConnection: MoneroRpcConnection = new MoneroRpcConnection({
-  uri: NODE_ADDRESS,
-  username: "username",
-  password: "password"
-});
+const NODE_ADDRESS = "134.122.121.42:80/";
+//const NODE_ADDRESS = "http://127.0.0.1:80/";
+let rpcConnection: MoneroRpcConnection;
 
 export default function App() {
 
-  //const TEST_WALLET_ADDRESS: string = "58XaBA1vZWfL6ZiWXiAAuGGaBCrdz7pjK8xpQdPGMz1APj5vUnPjWJ34pvDj4p9zJqCr2ZXKvsySyEQFw9nBnAdLNrXuKDe";
   const TEST_WALLET_ADDRESS: string =
     "58XaBA1vZWfL6ZiWXiAAuGGaBCrdz7pjK8xpQdPGMz1APj5vUnPjWJ34pvDj4p9zJqCr2ZXKvsySyEQFw9nBnAdLNrXuKDe";
-  //const TEST_WALLET_KEY: string = "ac8f4900cd7a3cc6fcdbb75f737da7dea41e243822e8c61e800fabd774b29d06";
   const TEST_WALLET_KEY: string =
     "ac8f4900cd7a3cc6fcdbb75f737da7dea41e243822e8c61e800fabd774b29d06";
 
@@ -113,7 +107,7 @@ export default function App() {
    *    (ie either larger than the current block height or a DATE before the "monero epoch" or after the current date)
    */
   const [buttonState, setButtonState] = useState(0);
-  const [syncProgress, setSyncProgress] = useState(0);
+  const [syncProgress, setSyncProgress] = useState(0);10.5
   
   const [transactionList, setTransactionList] = useState([] as Transaction[]);
   const transactionListHolder = useRef([] as Transaction[]);
@@ -147,6 +141,15 @@ export default function App() {
   
   // "initialize" the functional component. useEffect runs before the first render
   useEffect(function () {
+    try {
+    rpcConnection = new MoneroRpcConnection({
+      uri: NODE_ADDRESS,
+      username: "username",
+      password: "password"
+    });
+    } catch(e) {
+      console.log("failed to create RPC connection: " + e);
+    }
     async function loadPreRequisites() {
       // Load full wallet module
       try {
@@ -160,9 +163,8 @@ export default function App() {
       // Create a daemon connection using the MoneroRpcConnection
       try {
         daemonRpc.current = await monerojs.connectToDaemonRpc({server: rpcConnection});
-        
       } catch(e) {
-        
+        console.log("Daemon creation failed: " + e);
       }
 
       /*
@@ -344,6 +346,7 @@ export default function App() {
       dateConversionWalletPromise.current = monerojs
         .createWalletFull(WALLET_INFO)
         .then(function (resolvedDateWallet: MoneroWalletFull) {
+          console.log("Date wallet created");
           setDateConversionWallet(resolvedDateWallet);
           // Set the "action" button (ie the only button in the app) text, color, and pressability accordingly
           //checkIfAllInputsAreValid();
@@ -377,9 +380,13 @@ export default function App() {
   };
 
   const setCurrentSyncProgress = function (percentDone: number) {
-    setSyncProgress(percentDone);
+    // We only want to update every 1/100 of a percent
+    // In other words when a decimal in the 1/10 or 1/100 place increaes
+    const hundredthPercent = Math.trunc(percentDone * 100) / 100; //Trim everything after the second decimal
     if (percentDone === 100) {
       setButtonState(5);
+    } else if(hundredthPercent > syncProgress) {
+      setSyncProgress(hundredthPercent);
     }
   };
 
@@ -399,16 +406,19 @@ export default function App() {
      */
     // Did the user enter the eight in the form of a date?
     if (enteredHeightIsDate.current) {
+      console.log("Date height entered");
       // Is the conversion wallet loaded yet?
       if (dateConversionWallet === null) {
         // If not, wait for it to finish before proceeding
         await dateConversionWalletPromise.current;
+        console.log("date conversion wallet promise returned");
       }
       // Parse the date out into month, day, and year numbers
       let numberRegex: RegExp = /[0-9]+/g;
       let matches: RegExpMatchArray[] = [
         ...restoreHeight.matchAll(numberRegex)
       ];
+      console.log("The regExpMatchArray: " + JSON.stringify(matches));
       let parsedDate = {
         month: parseInt(matches[0][0]),
         day: parseInt(matches[1][0]),
@@ -425,9 +435,12 @@ export default function App() {
             parsedDate.month,
             parsedDate.day
           );
+          console.log("The date parsed as height: " + height);
         }
-      } catch {
+      } catch(e) {
         restoreHeightIsValid.current = false;
+        setButtonState(0);
+        console.log("Can't parse an invalid date: " + e);
         return;
       }
       // 
@@ -476,7 +489,7 @@ export default function App() {
         // Does createWalletFull in fact return an "Error" object on failure?
       })
       .catch(function (e: Error) {
-        // 
+        console.log("Failed to create main wallet: " + e);
         setButtonState(1);
       });
   };
@@ -836,11 +849,11 @@ export default function App() {
     // 
     if (buttonState === 5) {
       handleSubmit = resetApp;
-      buttonMessage = "View deposits to a different wallet";
+      buttonMessage = "Wallet syncronization complete";
       isActive = true;
     } else if (buttonState === 4) {
       showLoadingWheel = true;
-      buttonMessage = "Scanning (" + syncProgress.toFixed(0) + ")";
+      buttonMessage = "Scanning (" + Math.trunc(syncProgress) + ")";
     } else if (buttonState === 3) {
       buttonMessage = "Starting scan";
     } else if (buttonState === 2) {
