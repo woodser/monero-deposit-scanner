@@ -19,8 +19,9 @@ export default function({progress, children, className}: ProgressBarProps) {
   
   // Set the width of the progress bar indicator
   const progressStyle = {
-    width: progress.toString()
+    width: progress.toString() + "%"
   }
+  //console.log("Rendering progress bar with percent: " + progress);
   
   return(
     <div className = {className}>
