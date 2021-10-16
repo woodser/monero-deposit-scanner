@@ -21,7 +21,7 @@ export default function({progress, children, className}: ProgressBarProps) {
   const progressStyle = {
     width: progress.toString() + "%"
   }
-  console.log("Rendering progress bar with percent: " + progress);
+  //console.log("Rendering progress bar with percent: " + progress);
   
   return(
     <div className = {className}>
