@@ -66,6 +66,8 @@ type MoneroRpcConnection = monerojsExplicitImport.MoneroRpcConnection;
 // .current results in a MoneroError stating that "current" is not a 
 // valid field of MoneroRpcConnection
 const NODE_ADDRESS = "134.122.121.42:80/";
+const USERNAME = "username";
+const PASSWORD = "password";
 //const NODE_ADDRESS = "http://127.0.0.1:80/";
 let rpcConnection: MoneroRpcConnection;
 
@@ -144,8 +146,8 @@ export default function App() {
     try {
     rpcConnection = new MoneroRpcConnection({
       uri: NODE_ADDRESS,
-      username: "username",
-      password: "password"
+      username: USERNAME,
+      password: PASSWORD
     });
     } catch(e) {
       console.log("failed to create RPC connection: " + e);
