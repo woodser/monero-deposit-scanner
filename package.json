@@ -19,7 +19,7 @@
     "@types/react": "^17.0.27",
     "assert": "^2.0.0",
     "https-browserify": "^1.0.0",
-    "monero-javascript": "^0.5.6",
+    "monero-javascript": "^0.5.7",
     "node-polyfill-webpack-plugin": "^1.1.4",
     "nth-check": "^2.0.1",
     "react": "^17.0.2",

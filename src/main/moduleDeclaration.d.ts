@@ -74,9 +74,12 @@ declare module 'monero-javascript' {
   
   declare class MoneroWalletFull{
     async addListener(listener: MoneroWalletListener): Promise<void>;
-    async startSyncing(): Promise<void>;
+    async sync(listener: any, startHeight: any, allowConcurrentCalls: bool): Promise<any>;
+    async startSyncing(syncPeriod: any): Promise<void>;
+    async isSynced(): Promise<bool>;
     async getHeightByDate(year: number, month: number, day: number): Promise<number>;
     async getTx(hash: string): Promise<MoneroTxWallet>;
+    async getTxs(query: any): Promise<MoneroTxWallet[]>;
     async getPrivateViewKey(): Promise<string>;
     async getAddress(accountIdx: int, subaddressIdx: int): Promise<string>;
     

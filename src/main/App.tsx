@@ -68,6 +68,7 @@ type MoneroRpcConnection = monerojsExplicitImport.MoneroRpcConnection;
 const NODE_ADDRESS = "134.122.121.42:80/";
 const USERNAME = "username";
 const PASSWORD = "password";
+const WALLET_SYNC_PERIOD = 5000;
 //const NODE_ADDRESS = "http://127.0.0.1:80/";
 let rpcConnection: MoneroRpcConnection;
 
@@ -109,7 +110,7 @@ export default function App() {
    *    (ie either larger than the current block height or a DATE before the "monero epoch" or after the current date)
    */
   const [buttonState, setButtonState] = useState(0);
-  const [syncProgress, setSyncProgress] = useState(0);10.5
+  const [syncProgress, setSyncProgress] = useState(0);
   
   const [transactionList, setTransactionList] = useState([] as Transaction[]);
   const transactionListHolder = useRef([] as Transaction[]);
@@ -203,11 +204,11 @@ export default function App() {
       // The typescript compiler mistakenly assumes that wallet could be "null".
       let fullTx: MoneroTxWallet;
       if (wallet.current !== null) {
-        /* onOutputReceived only provides a skeleton transaction that is missing properties;
-         * thus, the app needs to obtain the full transaction from the wallet
-         */
-
-        fullTx = await wallet.current.getTx(currentTxHash);
+        
+        // onOutputReceived() only provides skeleton of transaction, so fetch full transaction
+        if (await wallet.current.isSynced()) fullTx = await wallet.current.getTx(currentTxHash); // checks the pool for updates
+        else fullTx = (await wallet.current.getTxs({hash: currentTxHash, isConfirmed: true}))[0]; // avoid network request to pool during sync
+        
         // Convert the MoneroTxWallet to a viewable string representation
         // MoneroWalletListener fires onOutputReceived twice for every tx; first when unconfirmed and again when confirmed
         // In order to prevent duplicates,
@@ -243,15 +244,15 @@ export default function App() {
         setTransactionList(txListCopy);
         
       } else {
-        
+        throw new Error("Wallet is null");
       }
     } else {
-      
+      // hash is already in the list
     }
   };
   /*
    * monero-javascript returns transaction datetimes in the form of an integer representing
-   * the number of milliseconds that have passed since te epoch.
+   * the number of milliseconds that have passed since the epoch.
    * The spec requires dates to be displayed in the format:
    * YYYY-MM-DD HH:MM:SS UTC
    */
@@ -484,8 +485,12 @@ export default function App() {
         wallet.current.getPrivateViewKey().then((viewKey: string) => {
           
         });
+        
+        // initial sync allows concurrent wallet calls in order to collect txs during scanning
+        resolvedWallet.sync(undefined, undefined, true).then(function() {
+          resolvedWallet.startSyncing(WALLET_SYNC_PERIOD);
+        });
 
-        resolvedWallet.startSyncing();
         // Set the "action" button (ie the only button in the app) text, color, and pressability accordingly
         setButtonState(4);
         // Does createWalletFull in fact return an "Error" object on failure?
