@@ -1,0 +1,58 @@
+:root {
+	--network-selector-item-height: 3.9rem; 
+	--network-selector-item-width: 51.3rem;
+	--max-num-selector-items: 7;
+	--header-color: #1c7b77;
+}
+
+.network_selector_item {
+	width: var(--network-selector-item-width);
+	height: var(--network-selector-item-height);
+	background-color: white;
+	border: 2px solid black;
+	display: block;
+}
+
+.is_hidden {
+	visibility: hidden;
+}
+
+.network_selector_item.network_selector_header{
+	background-color: var(--header-color);
+	color: white;
+	z-index:5;
+	width: var(--item-width);
+}
+
+.network_selector_items_container {
+	overflow-y: auto;
+	max-height: calc(var(--network-selector-item-height) * var(--max-num-selector-items));
+	display: inline-block;
+	height: auto;
+}
+
+.network_selector {
+	height: auto;
+	max-height: calc(var(--network-selector-item-height) * (var(--max-num-selector-items)-1));
+	position: relative;
+}
+
+.connection_indicator_circle {
+	width: calc(var(--network-selector-item-height) / 2);
+	height: calc(var(--network-selector-item-height) / 2);
+	border-radius: 50%;
+	background-color: green;
+	top: 50%;
+	left: calc(var(--network-selector-item-height) / 2);
+	transform: translate(calc(var(--network-selector-item-width) / -2 + 75%), calc(var(--network-selector-item-height) / 2 - var(--network-selector-item-height) / 4));
+}
+
+.blackout_screen {
+	position: fixed;
+	width: 100%;
+	height: 100%;
+	left: 0px;
+	top: 0px;
+	background-color: black;
+	opacity: 50%;
+}
