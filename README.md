@@ -21,7 +21,7 @@ Initial design. See [design.pdf](design.pdf) for more mockups.
 
 Send Monero donations to:
 <p align="center">
-  <img src="donationQR.png" width="300" height="300"/><br>
+  <img src="donationQR.png" width="180" height="180"/><br>
   <code>4735QZGCqASdjFvcFoJRkm6i8Z7fWWGAYe3PDS81hvnrjJj4J7kPoPbbYN9MBhru9xBRMPvi74TBXM19i2nRtykiFMDbG9n</code>
 </p>
 
