@@ -1,5 +1,9 @@
-declare module '*.gif';
-declare module '*.png';
+declare module '*.gif' {
+  export default "" as string; 
+}
+declare module '*.png'{
+  export default "" as string; 
+}
 
 type MoneroRpcConfig = {
   uri: string,
