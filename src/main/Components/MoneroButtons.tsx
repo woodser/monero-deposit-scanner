@@ -2,6 +2,8 @@ import React from 'react';
 import "./buttons.css";
 import ProgressBar from "./ProgressBar";
 
+import VerticallyCenteredItemContainer from "./VerticallyCenteredItemContainer";
+
 /*
  * A generic function to create a multipurpose "swiss army knife" button, which may display:
  * 1. A button labeled with a provided message
@@ -24,18 +26,32 @@ type SubmitButtonsProps = {
   showProgressBar: boolean,
   progress: number,
   action?: () => void | undefined,
-  image: JSX.Element,
+  image: string,
   message: string
+}
+
+type SubmitButtonImageProps = {
+  hide?: boolean,
+  image: string
 }
  
 export function SubmitButton({isActive, showProgressBar, progress, action, image, message}: SubmitButtonsProps) {
 
   //percentScanned fills in the progress bar
-  let className;
+  let className: string;
   if(isActive){
     className = "submit_button";
   } else {
     className = "submit_button submit_button_inactive";
+  }
+  
+  // The button may or may not show an image; thus a dynamic "placeholder" is need in jSX
+  let imageSpace: JSX.Element;
+  
+  if(image === "") {
+    imageSpace = <></>;
+  } else {
+    imageSpace = <SubmitButtonImage image = {image} />;
   }
   
   if (showProgressBar){
@@ -45,7 +61,8 @@ export function SubmitButton({isActive, showProgressBar, progress, action, image
         className = {className}
       >
         <span>{message}</span>
-        {image}
+        <SubmitButtonImage image = {image} />
+         
       </ProgressBar>      
     )
   } else {
@@ -55,9 +72,24 @@ export function SubmitButton({isActive, showProgressBar, progress, action, image
         onClick = {action}
       >
         <span>{message}</span>
-        {image}
+        {imageSpace}
       </div>
     )
-  }
-  
+  } 
+}
+
+// Can we remove the hide property? is it necessary in this app?
+export function SubmitButtonImage({hide, image} : SubmitButtonImageProps) {
+  // Remove the "onLoad" attribute if no notification function is provided - this will avoid errors
+  let className: string = hide === true ? "hidden" : "";
+
+  return ( 
+    <VerticallyCenteredItemContainer>
+      <img 
+        className = {"submit_button_image " + className} 
+        src = {image} 
+        alt = "Button image">
+      </img>
+    </VerticallyCenteredItemContainer>
+  )
 }

@@ -1,12 +1,3 @@
-/*
- * THE NEXT STEP
- * Timestamps aren't working because they must be obtained from the daemon, not
- * the transaction. Thus you need to create the daemon manually rather than
- * letting the wallet creat it.
- * ""so really, app should first decide daemon RPC connection, then initialize 
- * daemon from it, then initialize wallets from it as needed""
- */
-
 // ALSO: how to cancel date wallet loading if user simply enters a straight restore height?
 
 /*
@@ -24,7 +15,6 @@ import React, { useState, useRef, useEffect } from "react";
 import isPositiveInteger from "./Tools/isPositiveInteger";
 
 import { SubmitButton } from "./Components/MoneroButtons";
-import LoadingAnimation from "./Components/LoadingAnimation";
 import "./app.css";
 //import moneroLogo from "./img/logo.png";
 import PageBox from "./Components/PageBox";
@@ -35,6 +25,10 @@ import TitleBar from "./Components/TitleBar";
 //import ProgressBar from "./Components/ProgressBar";
 import TransactionTable from "./Components/TransactionTable";
 import { Transaction } from "./GlobalTypes";
+
+// Load the images/animations that can be displayed on the button
+import loadingAnimation from "./img/loadingAnimation.gif";
+import checkmarkImage from "./img/checkmark.png"
 
 const monerojs = require("monero-javascript");
 
@@ -65,7 +59,7 @@ type MoneroRpcConnection = monerojsExplicitImport.MoneroRpcConnection;
 // Unfortunately, defining as a ref and attempting to use that ref with
 // .current results in a MoneroError stating that "current" is not a 
 // valid field of MoneroRpcConnection
-const NODE_ADDRESS = "134.122.121.42:80/";
+const NODE_ADDRESS = "http://127.0.0.1:80/";
 const USERNAME = "username";
 const PASSWORD = "password";
 const WALLET_SYNC_PERIOD = 5000;
@@ -299,36 +293,7 @@ export default function App() {
   */
 
   const checkIfAllInputsAreValid: () => void = function () {
-    /*
-    if(buttonState === 5){
-      handleSubmit = resetApp;
-      buttonMessage = "View deposits to a different wallet";
-      isActive = true;
-    } else if (buttonState === 4) {
-      showLoadingWheel = true;
-      buttonMessage = "Scanning (" + syncProgress + ")"
-    } else if (buttonState === 3){
-      buttonMessage = "Starting scan";
-    } else if (buttnState === 2) {
-      buttonMessage = "working..."
-      showLoadingWheel = true
-    } else if (buttonState === 1){
-      buttonMessage = "View incoming deposits";
-      handleSubmit = startScanning;
-      isActive = true;
-    } else {
-      buttonMessage = "View incoming deposits";
-    }
-    */
-    /*
-     * BUTTON STATES
-     * 0. Inputs are not all validated
-     * 1. Inputs validated. Button can be pressed.
-     * 2. Validating restore height date (and creating date wallet if not finished)Button says "working")
-     * 3. creating wallet (button says "Scanning")
-     * 3. Wallet is syncing - show progress bar (button says "Scanning XX%")
-     * 4. Wallet is fully synced. Button is active again and presents option to enter new wallet info
-     */
+    console.log("Checking input validity")
     if (
       addressIsValid.current &&
       viewKeyIsValid.current &&
@@ -388,6 +353,11 @@ export default function App() {
     const hundredthPercent = Math.trunc(percentDone * 100) / 100; //Trim everything after the second decimal
     if (percentDone === 100) {
       setButtonState(5);
+      console.log("");
+      console.log("!!!");
+      console.log("Sync finished! setting buttonState to 5");
+      console.log("!!!");
+      console.log("");
     } else if(hundredthPercent > syncProgress) {
       setSyncProgress(hundredthPercent);
     }
@@ -500,41 +470,6 @@ export default function App() {
         setButtonState(1);
       });
   };
-
-  /**
-   * Common helper to initialize the main page after the wallet is created and synced.
-   *
-   * Creates the tx generator, listens for event notifications, and starts background synchronization.
-   */
-  /*
-  const _initMain: () => void = async function(){
-    
-    // resolve wallet promise
-    // TODO (woodser): create new wallet button needs greyed while this loads
-    let initWallet: MoneroWalletFull | undefined = await wallet.current;
-
-    // If the user hit "Or go back" before the wallet finished building, abandon wallet creation
-    // and do NOT proceed to wallet page
-    
-    // TEMPORARY - TO REMOVE ERRORS
-    // Eventally implement ability for user to cancel wallet confirmation in this app
-    let userCancelledWalletConfirmation = false;
-    if (userCancelledWalletConfirmation) return;
-    // register listener to handle balance notifications
-    // TODO: register once wherever is appropriate, but need to update state with updated balances from wallet listener
-    await initWallet.addListener(new class extends MoneroWalletListener {
-      async onBalancesChanged(newBalance: BigInteger, newUnlockedBalance: BigInteger) {
-        // 
-        setBalance(newBalance);
-      }
-    });
-    
-    // start syncing wallet in background if the user has not cancelled wallet creation.
-    if(wallet.current !== undefined) {
-      await wallet.current.startSyncing();
-    }
-  }
-  */
 
   const validateAddress = function (address: string): boolean {
     //Remove leading and trailing whitespace
@@ -845,7 +780,7 @@ export default function App() {
    */
   const createButtonElement = function () {
     let handleSubmit;
-    let showLoadingWheel: boolean = false;
+    let image: string = "";
     let buttonMessage: string = "";
 
     /*
@@ -856,29 +791,26 @@ export default function App() {
     // 
     if (buttonState === 5) {
       handleSubmit = resetApp;
-      buttonMessage = "Wallet syncronization complete";
+      image = checkmarkImage
+      buttonMessage = "Synchronized!";
+      console.log("Setting button according to state 5");
       isActive = true;
     } else if (buttonState === 4) {
-      showLoadingWheel = true;
+      image = loadingAnimation
       buttonMessage = "Scanning (" + Math.trunc(syncProgress) + ")";
     } else if (buttonState === 3) {
       buttonMessage = "Starting scan";
     } else if (buttonState === 2) {
       buttonMessage = "working...";
-      showLoadingWheel = true;
+      image = loadingAnimation
     } else if (buttonState === 1) {
       buttonMessage = "View incoming deposits";
       handleSubmit = startScanning;
+      console.log("Setting button according to state '1'");
       isActive = true;
     } else {
       // buttonState === 0
       buttonMessage = "View incoming deposits";
-    }
-
-    // implicit typing. explicitly type "image"
-    let image: JSX.Element = <></>;
-    if (showLoadingWheel) {
-      image = <LoadingAnimation />;
     }
 
     let showProgressBar = false;
@@ -1048,9 +980,9 @@ class walletListener extends MoneroWalletListener {
       this.lastIncrement += this.syncResolution;
     }
     // Reaching 100% wallet synchronization will change the submit button state
-    if (percentDone === 1) {
-      this.checkIfAllInputsAreValid();
-    }
+    //if (percentDone === 1) {
+    //  this.checkIfAllInputsAreValid();
+    //}
   }
 
   onBalancesChanged(newBalance: BigInteger, newUnlockedBalance: BigInteger) {

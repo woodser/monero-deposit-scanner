@@ -45,3 +45,10 @@ div.submit_button_inactive:hover {
 div.submit_button:active {
 	background-color: var(--button-click-color);
 }
+
+.submit_button_image {
+  margin: 0 auto;
+  flex: none;
+  height: var(--loading-animation-size);
+  width: var(--submit-button-image-size);
+}
