@@ -25,6 +25,7 @@ import TitleBar from "./Components/TitleBar";
 //import ProgressBar from "./Components/ProgressBar";
 import TransactionTable from "./Components/TransactionTable";
 import { Transaction } from "./GlobalTypes";
+import NetworkSelector from "./Components/NetworkSelector/NetworkSelector.js";
 
 // Load the images/animations that can be displayed on the button
 import loadingAnimation from "./img/loadingAnimation.gif";
@@ -128,16 +129,28 @@ export default function App() {
   rejectUnauthorized?: boolean
   */
   const daemonRpc = useRef<MoneroDaemonRpc | null>(null);
+  
+  type NetworkConnection = {
+    address: number,
+    status: number
+  }
+  
+  const nodes = useRef<NetworkConnection[]>([]);
+  
   const WALLET_INFO = {
     password: "Random password",
     networkType: "stagenet",
     server: rpcConnection
   };
-  // Debug!
   const [useOverrideWallet, setUseOverrideWallet] = useState<boolean>(false);
+  
   
   // "initialize" the functional component. useEffect runs before the first render
   useEffect(function () {
+    console.log("Running useEffect");
+    
+    console.log("Nodes after init: " + nodes.current);
+    
     try {
     rpcConnection = new MoneroRpcConnection({
       uri: NODE_ADDRESS,
@@ -179,11 +192,6 @@ export default function App() {
 
     loadPreRequisites();
   }, []);
-
-  useEffect(function(): void {
-    
-    
-  }, [transactionList])
 
   const addTransaction: (transaction: MoneroTxWallet) => void = async function (transaction) {
     /*
@@ -314,7 +322,6 @@ export default function App() {
       dateConversionWalletPromise.current = monerojs
         .createWalletFull(WALLET_INFO)
         .then(function (resolvedDateWallet: MoneroWalletFull) {
-          console.log("Date wallet created");
           setDateConversionWallet(resolvedDateWallet);
           // Set the "action" button (ie the only button in the app) text, color, and pressability accordingly
           //checkIfAllInputsAreValid();
@@ -379,19 +386,16 @@ export default function App() {
      */
     // Did the user enter the eight in the form of a date?
     if (enteredHeightIsDate.current) {
-      console.log("Date height entered");
       // Is the conversion wallet loaded yet?
       if (dateConversionWallet === null) {
         // If not, wait for it to finish before proceeding
         await dateConversionWalletPromise.current;
-        console.log("date conversion wallet promise returned");
       }
       // Parse the date out into month, day, and year numbers
       let numberRegex: RegExp = /[0-9]+/g;
       let matches: RegExpMatchArray[] = [
         ...restoreHeight.matchAll(numberRegex)
       ];
-      console.log("The regExpMatchArray: " + JSON.stringify(matches));
       let parsedDate = {
         month: parseInt(matches[0][0]),
         day: parseInt(matches[1][0]),
@@ -408,12 +412,10 @@ export default function App() {
             parsedDate.month,
             parsedDate.day
           );
-          console.log("The date parsed as height: " + height);
         }
       } catch(e) {
         restoreHeightIsValid.current = false;
         setButtonState(0);
-        console.log("Can't parse an invalid date: " + e);
         return;
       }
       // 
@@ -883,10 +885,18 @@ export default function App() {
    */
   // 
   // 
-  // 
-
+  //
+  if(nodes.current.length === 0){
+    // Initialize nodes list
+    // (for now, this is just a dummy list for UI testing)
+    nodes.current = [];
+    for(let i = 0; i < 12; i++){
+      nodes.current.push({address: i, status: 0});
+    }
+  } 
+  console.log("nodes!!!: " + nodes.current);
   return (
-    <>
+    <div id = "app_container">
       <button
         style={{
           backgroundColor: "yellow",
@@ -934,10 +944,13 @@ export default function App() {
         <div className="small_spacer"></div>
         {buttonElement}
         <div className="small_spacer"></div>
+        <NetworkSelector nodes = {nodes.current}/>
+        <div className="small_spacer"></div>
         <TransactionTable transactions={transactionList} />
         <div className="large_spacer"></div>
+      
       </PageBox>
-    </>
+    </div>
   );
 }
 

@@ -57,6 +57,14 @@ module.exports = {
           name: '[name].[ext]',
         },
       },
+      {
+        test: /\.svg$/,
+        loader: 'svg-url-loader',
+        options: {
+          limit: 10000,
+          name: '[name].[ext]',
+        }
+      },
     ],
   },
   mode: 'development',
